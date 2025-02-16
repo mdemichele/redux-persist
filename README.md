@@ -3,6 +3,10 @@ Persist and rehydrate a redux store.
 
 [![build status](https://img.shields.io/travis/rt2zz/redux-persist/master.svg?style=flat-square)](https://travis-ci.org/rt2zz/redux-persist) [![npm version](https://img.shields.io/npm/v/redux-persist.svg?style=flat-square)](https://www.npmjs.com/package/redux-persist) [![npm downloads](https://img.shields.io/npm/dm/redux-persist.svg?style=flat-square)](https://www.npmjs.com/package/redux-persist)
 
+## February 16, 2025 - New Fork Created.
+
+I'm hoping we can revive this project and get it actively maintained again.
+
 ## October 15th, 2021 - Move to TypeScript (Thanks [@smellman](https://github.com/smellman))
 
 As part of the work to upgrade the infrastructure used to build redux-persist, we're moving from Flow to TypeScript.
