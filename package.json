@@ -1,11 +1,11 @@
 {
   "name": "redux-persist",
-  "version": "6.1.0",
+  "version": "0.0.1",
   "description": "persist and rehydrate redux stores",
   "main": "lib/index.js",
   "module": "es/index.js",
   "types": "lib/index.d.ts",
-  "repository": "rt2zz/redux-persist",
+  "repository": "mdemichele/redux-persist",
   "files": [
     "src",
     "es",
@@ -33,9 +33,9 @@
       "git add"
     ]
   },
-  "author": "",
+  "author": "Matthew DeMichele <m.d.demichele@gmail.com> (https://mattdemichele.co)",
   "license": "MIT",
-  "homepage": "https://github.com/rt2zz/redux-persist#readme",
+  "homepage": "https://github.com/mdemichele/redux-persist#readme",
   "ava": {
     "files": [
       "tests/**/*.spec.ts"
