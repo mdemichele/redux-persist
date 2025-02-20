@@ -37,8 +37,13 @@ createMigrate(
 ### `type Persistor`
 ```js
 {
+  pause: () => void,
+  persist: () => void,
   purge: () => Promise<void>,
   flush: () => Promise<void>,
+  dispatch: (action: PersistorAction) => PersistorAction,
+  getState: () => PersistorState,
+  subscribe: (callback: PersistorSubscribeCallback) => any
 }
 ```
 
