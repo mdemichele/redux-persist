@@ -70,13 +70,13 @@ The Persistor is a redux store unto itself, plus
 }
 ```
 
-Persisting state involves calling setItem() on the storage engine. By default, this will fail silently if the storage/quota is exhausted.  
-Provide a writeFailHandler(error) function to be notified if this occurs.
+Persisting state involves calling `setItem()` on the storage engine. By default, this will fail silently if the storage/quota is exhausted.  
+Provide a `writeFailHandler(error)` function to be notified if this occurs.
 
 ### `type MigrationManifest`
 ```js
 {
-  [number]: (State) => State
+  [string]: (State) => State
 }
 ```
 Where the keys are state version numbers and the values are migration functions to modify state.
