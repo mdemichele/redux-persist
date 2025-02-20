@@ -33,7 +33,7 @@
       "git add"
     ]
   },
-  "author": "Matthew DeMichele",
+  "author": "Matthew DeMichele <m.d.demichele@gmail.com> (https://mattdemichele.co)",
   "license": "MIT",
   "homepage": "https://github.com/mdemichele/redux-persist#readme",
   "ava": {
