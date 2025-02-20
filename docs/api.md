@@ -37,8 +37,13 @@ createMigrate(
 ### `type Persistor`
 ```js
 {
+  pause: () => void,
+  persist: () => void,
   purge: () => Promise<void>,
   flush: () => Promise<void>,
+  dispatch: (action: PersistorAction) => PersistorAction,
+  getState: () => PersistorState,
+  subscribe: (callback: PersistorSubscribeCallback) => any
 }
 ```
 
@@ -51,29 +56,32 @@ The Persistor is a redux store unto itself, plus
 ### `type PersistConfig`
 ```js
 {
-  key: string, // the key for the persist
-  storage: Object, // the storage adapter, following the AsyncStorage api
   version?: number, // the state version as an integer (defaults to -1)
+  storage: Object, // the storage adapter, following the AsyncStorage api
+  key: string, // the key for the persist
+  keyPrefix?: string, // will be prefixed to the storage key
   blacklist?: Array<string>, // do not persist these keys
   whitelist?: Array<string>, // only persist these keys
-  migrate?: (Object, number) => Promise<Object>,
   transforms?: Array<Transform>,
   throttle?: number, // ms to throttle state writes
-  keyPrefix?: string, // will be prefixed to the storage key
-  debug?: boolean, // true -> verbose logs
+  migrate?: (Object, number) => Promise<Object>,
   stateReconciler?: false | StateReconciler, // false -> do not automatically reconcile state
+  getStoredState?: (PersistConfig<S, RS, HSS, ESS>) => Promise<PersistedState>
+  debug?: boolean, // true -> verbose logs
   serialize?: boolean, // false -> do not call JSON.parse & stringify when setting & getting from storage
+  deserialize?: boolean | ((any) => any)
+  timeout?: number;
   writeFailHandler?: Function, // will be called if the storage engine fails during setItem()
 }
 ```
 
-Persisting state involves calling setItem() on the storage engine. By default, this will fail silently if the storage/quota is exhausted.  
-Provide a writeFailHandler(error) function to be notified if this occurs.
+Persisting state involves calling `setItem()` on the storage engine. By default, this will fail silently if the storage/quota is exhausted.  
+Provide a `writeFailHandler(error)` function to be notified if this occurs.
 
 ### `type MigrationManifest`
 ```js
 {
-  [number]: (State) => State
+  [string]: (State) => State
 }
 ```
 Where the keys are state version numbers and the values are migration functions to modify state.
