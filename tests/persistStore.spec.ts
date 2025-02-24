@@ -7,7 +7,8 @@ import persistStore from '../src/persistStore'
 import { PERSIST, REHYDRATE } from '../src/constants'
 import find from './utils/find'
 
-const mockStore = configureStore([])
+const middleware = []
+const mockStore = configureStore(middleware)
 
 test('persistStore dispatches PERSIST action', t => {
   const store = mockStore()
