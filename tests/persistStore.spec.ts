@@ -1,20 +1,37 @@
 import test from 'ava'
 import sinon from 'sinon'
 
-import configureStore from 'redux-mock-store'
+import configureStore, { MockStoreCreator, MockStoreEnhanced } from 'redux-mock-store' // @TODO: Redux Mock Store is deprecated. Should update soon.
 
 import persistStore from '../src/persistStore'
 import { PERSIST, REHYDRATE } from '../src/constants'
 import find from './utils/find'
+import { Middleware } from 'redux'
+import { Persistor } from '../src/types'
 
-const mockStore = configureStore([])
+const middleware: Middleware[] = []
+const mockStore: MockStoreCreator<unknown, {}> = configureStore(middleware)
+
+test('persistStore returns a Persistor object', t => {
+  const store: MockStoreEnhanced<unknown, {}> = mockStore()
+  const persistor: Persistor = persistStore(store)
+  t.is('object', typeof persistor)
+  t.is('function', typeof persistor.pause)
+  t.is('function', typeof persistor.persist)
+  t.is('function', typeof persistor.purge)
+  t.is('function', typeof persistor.flush)
+  t.is('function', typeof persistor.dispatch)
+  t.is('function', typeof persistor.getState)
+  t.is('function', typeof persistor.subscribe)
+})
 
 test('persistStore dispatches PERSIST action', t => {
-  const store = mockStore()
+  const store: MockStoreEnhanced<unknown, {}> = mockStore()
   persistStore(store)
   const actions = store.getActions()
   const persistAction = find(actions, { type: PERSIST })
   t.truthy(persistAction)
+  t.is('persist/PERSIST', persistAction.type)
 })
 
 test('register method adds a key to the registry', t => {
