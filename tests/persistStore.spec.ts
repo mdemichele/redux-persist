@@ -1,7 +1,7 @@
 import test from 'ava'
 import sinon from 'sinon'
 
-import configureStore from 'redux-mock-store'
+import configureStore from 'redux-mock-store' // @TODO: Redux Mock Store is deprecated. Should update soon.
 
 import persistStore from '../src/persistStore'
 import { PERSIST, REHYDRATE } from '../src/constants'
