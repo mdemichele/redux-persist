@@ -50,7 +50,7 @@ const config = [
         module: "esnext"
       }),
       pluginCommonjs({
-        extensions: [".js", ".ts"]
+        extensions: [".js"]
       }),
       pluginBabel({
         babelHelpers: "bundled",
