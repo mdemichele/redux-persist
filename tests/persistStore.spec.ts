@@ -1,7 +1,9 @@
 import test from 'ava'
 import sinon from 'sinon'
 
-import configureStore, { MockStoreCreator, MockStoreEnhanced } from 'redux-mock-store' // @TODO: Redux Mock Store is deprecated. Should update soon.
+import _configureStore, { MockStoreCreator, MockStoreEnhanced } from 'redux-mock-store' // @TODO: Redux Mock Store is deprecated. Should update soon.
+// Node.js ESM doesn't unwrap __esModule:true from CJS packages; access .default explicitly
+const configureStore = (_configureStore as any).default as typeof _configureStore
 
 import persistStore from '../src/persistStore'
 import { PERSIST, REHYDRATE } from '../src/constants'
