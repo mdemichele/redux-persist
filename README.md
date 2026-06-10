@@ -1,7 +1,7 @@
 # Redux Persist
 Persist and rehydrate a redux store.
 
-[![build status](https://img.shields.io/travis/rt2zz/redux-persist/master.svg?style=flat-square)](https://travis-ci.org/rt2zz/redux-persist) [![npm version](https://img.shields.io/npm/v/redux-persist.svg?style=flat-square)](https://www.npmjs.com/package/redux-persist) [![npm downloads](https://img.shields.io/npm/dm/redux-persist.svg?style=flat-square)](https://www.npmjs.com/package/redux-persist)
+[![npm version](https://img.shields.io/npm/v/@mdemichele/redux-persist.svg?style=flat-square)](https://www.npmjs.com/package/@mdemichele/redux-persist) [![npm downloads](https://img.shields.io/npm/dm/@mdemichele/redux-persist.svg?style=flat-square)](https://www.npmjs.com/package/@mdemichele/redux-persist)
 
 ## Project Timeline
 
