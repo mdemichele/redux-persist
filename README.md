@@ -26,7 +26,7 @@ const persistConfig = {
 ```
 
 ## Quickstart
-`npm install redux-persist`
+`npm install @mdemichele/redux-persist`
 
 Usage Examples:
 1. [Basic Usage](#basic-usage)
@@ -41,8 +41,8 @@ Basic usage involves adding `persistReducer` and `persistStore` to your setup. *
 // configureStore.js
 
 import { createStore } from 'redux'
-import { persistStore, persistReducer } from 'redux-persist'
-import storage from 'redux-persist/lib/storage' // defaults to localStorage for web
+import { persistStore, persistReducer } from '@mdemichele/redux-persist'
+import storage from '@mdemichele/redux-persist/lib/storage' // defaults to localStorage for web
 
 import rootReducer from './reducers'
 
@@ -63,7 +63,7 @@ export default () => {
 If you are using react, wrap your root component with [PersistGate](./docs/PersistGate.md). This delays the rendering of your app's UI until your persisted state has been retrieved and saved to redux. **NOTE** the `PersistGate` loading prop can be null, or any react instance, e.g. `loading={<Loading />}`
 
 ```js
-import { PersistGate } from 'redux-persist/integration/react'
+import { PersistGate } from '@mdemichele/redux-persist/integration/react'
 
 // ... normal setup, create store and persistor, import components etc.
 
@@ -83,7 +83,7 @@ const App = () => {
 
 #### `persistReducer(config, reducer)`
   - arguments
-    - [**config**](https://github.com/rt2zz/redux-persist/blob/master/src/types.ts#L33-L56) *object*
+    - [**config**](https://github.com/mdemichele/redux-persist/blob/master/src/types.ts#L33-L56) *object*
       - required config: `key, storage`
       - notable other config: `whitelist, blacklist, version, stateReconciler, debug`
     - **reducer** *function*
@@ -112,7 +112,7 @@ const App = () => {
 ## State Reconciler
 State reconcilers define how incoming state is merged in with initial state. It is critical to choose the right state reconciler for your state. There are three options that ship out of the box, let's look at how each operates:
 
-1. **hardSet** (`import hardSet from 'redux-persist/lib/stateReconciler/hardSet'`)
+1. **hardSet** (`import hardSet from '@mdemichele/redux-persist/lib/stateReconciler/hardSet'`)
 This will hard set incoming state. This can be desirable in some cases where persistReducer is nested deeper in your reducer tree, or if you do not rely on initialState in your reducer.
    - **incoming state**: `{ foo: incomingFoo }`
    - **initial state**: `{ foo: initialFoo, bar: initialBar }`
@@ -122,7 +122,7 @@ This will auto merge one level deep. Auto merge means if the some piece of subst
    - **incoming state**: `{ foo: incomingFoo }`
    - **initial state**: `{ foo: initialFoo, bar: initialBar }`
    - **reconciled state**: `{ foo: incomingFoo, bar: initialBar }` // note incomingFoo overwrites initialFoo
-3. **autoMergeLevel2** (`import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2'`)
+3. **autoMergeLevel2** (`import autoMergeLevel2 from '@mdemichele/redux-persist/lib/stateReconciler/autoMergeLevel2'`)
 This acts just like autoMergeLevel1, except it shallow merges two levels
    - **incoming state**: `{ foo: incomingFoo }`
    - **initial state**: `{ foo: initialFoo, bar: initialBar }`
@@ -130,7 +130,7 @@ This acts just like autoMergeLevel1, except it shallow merges two levels
 
 #### Example
 ```js
-import hardSet from 'redux-persist/lib/stateReconciler/hardSet'
+import hardSet from '@mdemichele/redux-persist/lib/stateReconciler/hardSet'
 
 const persistConfig = {
   key: 'root',
@@ -166,8 +166,8 @@ const persistConfig = {
 Nested persist can be useful for including different storage adapters, code splitting, or deep filtering. For example while blacklist and whitelist only work one level deep, but we can use a nested persist to blacklist a deeper value:
 ```js
 import { combineReducers } from 'redux'
-import { persistReducer } from 'redux-persist'
-import storage from 'redux-persist/lib/storage'
+import { persistReducer } from '@mdemichele/redux-persist'
+import storage from '@mdemichele/redux-persist/lib/storage'
 
 import { authReducer, otherReducer } from './reducers'
 
@@ -214,7 +214,7 @@ When the state object gets persisted, it first gets serialized with `JSON.string
 Below is a Transform that successfully persists a Set property, which simply converts it to an array and back. In this way, the Set gets converted to an Array, which is a recognized data structure in JSON. When pulled out of the persisted store, the array gets converted back to a Set before being saved to the redux store.
 
 ```js
-import { createTransform } from 'redux-persist';
+import { createTransform } from '@mdemichele/redux-persist';
 
 const SetTransform = createTransform(
   // transform state on its way to being serialized and persisted.
@@ -242,7 +242,7 @@ The `createTransform` function takes three parameters.
 In order to take effect transforms need to be added to a `PersistReducer`’s config object.
 
 ```
-import storage from 'redux-persist/lib/storage';
+import storage from '@mdemichele/redux-persist/lib/storage'
 import { SetTransform } from './transforms';
 
 const persistConfig = {
@@ -253,8 +253,8 @@ const persistConfig = {
 ```
 
 ## Storage Engines
-- **localStorage** `import storage from 'redux-persist/lib/storage'`
-- **sessionStorage** `import storageSession from 'redux-persist/lib/storage/session'`
+- **localStorage** `import storage from '@mdemichele/redux-persist/lib/storage'`
+- **sessionStorage** `import storageSession from '@mdemichele/redux-persist/lib/storage/session'`
 - **[electron storage](https://github.com/psperber/redux-persist-electron-storage)** Electron support via [electron store](https://github.com/sindresorhus/electron-store)
 - **[redux-persist-cookie-storage](https://github.com/abersager/redux-persist-cookie-storage)** Cookie storage engine, works in browser and Node.js, for universal / isomorphic apps
 - **[redux-persist-expo-filesystem](https://github.com/t73liu/redux-persist-expo-filesystem)** react-native, similar to redux-persist-filesystem-storage but does not require linking or ejecting CRNA/Expo app. Only available if using Expo SDK (Expo, create-react-native-app, standalone).
