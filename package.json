@@ -1,5 +1,5 @@
 {
-  "name": "redux-persist",
+  "name": "@mdemichele/redux-persist",
   "version": "0.0.1",
   "description": "persist and rehydrate redux stores",
   "type": "module",
@@ -8,7 +8,6 @@
   "types": "lib/index.d.ts",
   "repository": "mdemichele/redux-persist",
   "files": [
-    "src",
     "es",
     "lib",
     "dist",
@@ -78,8 +77,5 @@
   },
   "peerDependencies": {
     "redux": ">4.0.0"
-  },
-  "dependencies": {
-    "redux-persist": "^6.0.0"
   }
 }
