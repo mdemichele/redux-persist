@@ -5,6 +5,7 @@ Persist and rehydrate a redux store.
 
 ## Project Timeline
 
+- June 9, 2026: v0.0.1 released to npm as `@mdemichele/redux-persist`
 - February 16, 2025: New Fork Created. I'm hoping we can revive this project and get it actively maintained again.
 - October 15th, 2021: Move to TypeScript (Thanks [@smellman](https://github.com/smellman))
   - As part of the work to upgrade the infrastructure used to build redux-persist, we're moving from Flow to TypeScript.
