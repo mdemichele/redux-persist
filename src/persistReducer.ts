@@ -142,6 +142,8 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
                 _rehydrate(undefined, migrateErr)
               }
             )
+          } else {
+            _rehydrate(undefined)
           }
         },
         err => {
