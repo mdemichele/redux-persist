@@ -1,16 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 type TransformConfig = {
   whitelist?: Array<string>,
   blacklist?: Array<string>,
 }
 
+type TransformFn = (state: unknown, key: string, fullState: unknown) => unknown
+
 export default function createTransform(
   // @NOTE inbound: transform state coming from redux on its way to being serialized and stored
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  inbound: Function,
+  inbound: TransformFn,
   // @NOTE outbound: transform state coming from storage, on its way to be rehydrated into redux
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  outbound: Function,
+  outbound: TransformFn,
   config: TransformConfig = {}
 ): any {
   const whitelist = config.whitelist || null

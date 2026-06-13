@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Action, AnyAction, Reducer
 } from 'redux'
@@ -130,8 +129,7 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
       getStoredState(config).then(
         restoredState => {
           if (restoredState) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const migrate = config.migrate || ((s, _) => Promise.resolve(s))
+            const migrate = config.migrate || ((s) => Promise.resolve(s))
             migrate(restoredState as any, version).then(
               migratedState => {
                 _rehydrate(migratedState)

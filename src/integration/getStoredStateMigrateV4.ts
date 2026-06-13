@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import getStoredStateV5 from '../getStoredState'
 
 import type { KeyAccessState, PersistConfig, Storage, Transform } from '../types'
@@ -44,10 +43,7 @@ function hasLocalStorage() {
   return true
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const noop = (...args: any) => {
-  /* noop */ return null
-}
+const noop = () => null
 const noStorage = {
   getItem: noop,
   setItem: noop,
