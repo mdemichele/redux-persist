@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Storage } from "../../src/types"
+import { Storage } from '../../src/types'
 
 interface StateObj {
-  [key: string]: any;
+  [key: string]: any
 }
 
-export function createMemoryStorage():Storage {
+export function createMemoryStorage(): Storage {
   const state: StateObj = {}
   return {
     getItem(key: string): Promise<string> {
@@ -22,7 +21,7 @@ export function createMemoryStorage():Storage {
     getAllKeys(): Promise<Array<string>> {
       return Promise.resolve(Object.keys(state))
     },
-    keys: Object.keys(state)
+    keys: Object.keys(state),
   }
 }
 
