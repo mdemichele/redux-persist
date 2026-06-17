@@ -33,7 +33,7 @@ function hasLocalStorage() {
     storage.setItem(testKey, 'test')
     storage.getItem(testKey)
     storage.removeItem(testKey)
-  } catch (e) {
+  } catch {
     if (process.env.NODE_ENV !== 'production')
       console.warn(
         `redux-persist localStorage test failed, persistence will be disabled.`
@@ -85,7 +85,7 @@ const createAsyncLocalStorage = () => {
     removeItem(key: string, cb: any) {
       try {
         localStorage.removeItem(key)
-        cb && cb(null)
+        cb?.(null)
       } catch (e) {
         cb(e)
       }

@@ -40,12 +40,12 @@ export class PersistGate extends PureComponent<Props, State> {
       } else {
         this.setState({ bootstrapped: true })
       }
-      this._unsubscribe && this._unsubscribe()
+      this._unsubscribe?.()
     }
   }
 
   componentWillUnmount(): void {
-    this._unsubscribe && this._unsubscribe()
+    this._unsubscribe?.()
   }
 
   render(): ReactNode {

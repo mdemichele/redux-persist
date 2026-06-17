@@ -57,9 +57,7 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
   let _paused = true
   const conditionalUpdate = (state: any) => {
     // update the persistoid only if we are rehydrated and not paused
-    state._persist.rehydrated &&
-      _persistoid &&
-      !_paused &&
+    if (state._persist.rehydrated && _persistoid && !_paused)
       _persistoid.update(state)
     return state
   }
@@ -87,9 +85,9 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
           _sealed = true
         }
       }
-      timeout &&
+      if (timeout)
         setTimeout(() => {
-          !_sealed &&
+          if (!_sealed)
             _rehydrate(
               undefined,
               new Error(
