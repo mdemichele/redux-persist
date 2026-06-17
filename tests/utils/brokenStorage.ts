@@ -1,18 +1,15 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/ban-types */
 export default {
   getItem(): Promise<void> {
-    return new Promise((resolve: Function, reject: Function) => {})
+    return new Promise<void>(() => {})
   },
   setItem(): Promise<void> {
-    return new Promise((resolve: Function, reject: Function) => {})
+    return new Promise<void>(() => {})
   },
   removeItem(): Promise<void> {
-    return new Promise((resolve: Function, reject: Function) => {})
+    return new Promise<void>(() => {})
   },
   getAllKeys(): Promise<void> {
-    return new Promise((resolve: Function, reject: Function) => {})
+    return new Promise<void>(() => {})
   },
   keys: []
 }
