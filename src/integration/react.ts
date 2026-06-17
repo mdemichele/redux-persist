@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import React, { PureComponent, ReactNode } from 'react'
+import { PureComponent, ReactNode } from 'react'
 import type { Persistor } from '../types'
 
 type Props = {
@@ -41,12 +40,12 @@ export class PersistGate extends PureComponent<Props, State> {
       } else {
         this.setState({ bootstrapped: true })
       }
-      this._unsubscribe && this._unsubscribe()
+      this._unsubscribe?.()
     }
   }
 
   componentWillUnmount(): void {
-    this._unsubscribe && this._unsubscribe()
+    this._unsubscribe?.()
   }
 
   render(): ReactNode {

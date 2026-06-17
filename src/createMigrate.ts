@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DEFAULT_VERSION } from './constants'
 
 import type { PersistedState, MigrationManifest } from './types'

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PersistConfig } from './types'
 
 import { KEY_PREFIX } from './constants'

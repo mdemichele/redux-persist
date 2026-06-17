@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import getStoredStateV5 from '../getStoredState'
 
 import type { KeyAccessState, PersistConfig, Storage, Transform } from '../types'
@@ -34,7 +33,7 @@ function hasLocalStorage() {
     storage.setItem(testKey, 'test')
     storage.getItem(testKey)
     storage.removeItem(testKey)
-  } catch (e) {
+  } catch {
     if (process.env.NODE_ENV !== 'production')
       console.warn(
         `redux-persist localStorage test failed, persistence will be disabled.`
@@ -44,10 +43,7 @@ function hasLocalStorage() {
   return true
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const noop = (...args: any) => {
-  /* noop */ return null
-}
+const noop = () => null
 const noStorage = {
   getItem: noop,
   setItem: noop,
@@ -89,7 +85,7 @@ const createAsyncLocalStorage = () => {
     removeItem(key: string, cb: any) {
       try {
         localStorage.removeItem(key)
-        cb && cb(null)
+        cb?.(null)
       } catch (e) {
         cb(e)
       }

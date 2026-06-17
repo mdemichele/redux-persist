@@ -1,7 +1,6 @@
 import type { Storage } from '../types'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-function noop() {}
+const noop = (): void => undefined
 const noopStorage = {
   getItem: noop,
   setItem: noop,
@@ -21,7 +20,7 @@ function hasStorage(storageType: string) {
     storage.setItem(testKey, 'test')
     storage.getItem(testKey)
     storage.removeItem(testKey)
-  } catch (e) {
+  } catch {
     if (process.env.NODE_ENV !== 'production')
       console.warn(
         `redux-persist ${storageType} test failed, persistence will be disabled.`
