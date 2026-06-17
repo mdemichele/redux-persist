@@ -12,10 +12,10 @@ import { Middleware } from 'redux'
 import { Persistor } from '../src/types'
 
 const middleware: Middleware[] = []
-const mockStore: MockStoreCreator<unknown, {}> = configureStore(middleware)
+const mockStore: MockStoreCreator<unknown, object> = configureStore(middleware)
 
 test('persistStore returns a Persistor object', t => {
-  const store: MockStoreEnhanced<unknown, {}> = mockStore()
+  const store: MockStoreEnhanced<unknown, object> = mockStore()
   const persistor: Persistor = persistStore(store)
   t.is('object', typeof persistor)
   t.is('function', typeof persistor.pause)
@@ -28,7 +28,7 @@ test('persistStore returns a Persistor object', t => {
 })
 
 test('persistStore dispatches PERSIST action', t => {
-  const store: MockStoreEnhanced<unknown, {}> = mockStore()
+  const store: MockStoreEnhanced<unknown, object> = mockStore()
   persistStore(store)
   const actions = store.getActions()
   const persistAction = find(actions, { type: PERSIST })
