@@ -21,6 +21,7 @@ For a deeper look at the problem this project solves and why it was built, see [
   - Version updates for some dependencies
 - September 22nd, 2021 - Under New Management
   - ([@ckalika](https://github.com/ckalika)) did great work taking over maintenance of the project from [@rt2zz](https://github.com/rt2zz)
+- July 22nd, 2015: Project originally created by [@rt2zz](https://github.com/rt2zz)
 
 ## v0.0.1
 v0.0.1 is the currently maintained version. No changes from v6. We're choosing to start with a fresh v0.0.1 to signal the change in maintainership and repository move. 
