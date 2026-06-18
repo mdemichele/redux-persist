@@ -3,6 +3,14 @@ Persist and rehydrate a redux store.
 
 [![npm version](https://img.shields.io/npm/v/@mdemichele/redux-persist.svg?style=flat-square)](https://www.npmjs.com/package/@mdemichele/redux-persist) [![npm downloads](https://img.shields.io/npm/dm/@mdemichele/redux-persist.svg?style=flat-square)](https://www.npmjs.com/package/@mdemichele/redux-persist)
 
+## Overview
+
+Redux state lives entirely in memory and resets on every page refresh or app restart. redux-persist solves this by automatically saving your Redux store to a storage engine (such as `localStorage` on web or `AsyncStorage` on React Native) and restoring it when the application reloads — with no changes required to your existing reducers or actions.
+
+Beyond basic persistence, the library also handles state shape migrations as your app evolves, lets you choose exactly which slices of state to save via whitelists and blacklists, and provides a `PersistGate` React component to delay rendering until rehydration is complete.
+
+For a deeper look at the problem this project solves and why it was built, see [docs/project-purpose.md](./docs/project-purpose.md).
+
 ## Project Timeline
 
 - June 9, 2026: v0.0.1 released to npm as `@mdemichele/redux-persist`
