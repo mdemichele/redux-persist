@@ -109,7 +109,8 @@ Where Persistoid is [defined below](#type-persistoid).
 ### `type Persistoid`
 ```js
 {
-  update: (State) => void
+  update: (State) => void,
+  flush: () => Promise<any>
 }
 ```
 
