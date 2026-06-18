@@ -100,35 +100,53 @@ const App = () => {
 - `PersistGate` also accepts a function as children: the function receives a single `bootstrapped` boolean argument and is re-invoked once persistence is complete, which is useful for adding transition animations.
 
 ## API
-[Full API](./docs/api.md)
+
+For the complete API reference see [docs/api.md](./docs/api.md).
 
 #### `persistReducer(config, reducer)`
-  - arguments
-    - [**config**](https://github.com/mdemichele/redux-persist/blob/master/src/types.ts#L33-L56) *object*
-      - required config: `key, storage`
-      - notable other config: `whitelist, blacklist, version, stateReconciler, debug`
-    - **reducer** *function*
-      - any reducer will work, typically this would be the top level reducer returned by `combineReducers`
-  - returns an enhanced reducer
+
+Wraps a reducer so that it automatically persists and rehydrates state.
+
+- **`config`** *object* — required fields: `key`, `storage`. See the full config options below.
+- **`reducer`** *function* — any reducer, typically the root reducer returned by `combineReducers`.
+- Returns an enhanced reducer. Swap this in place of your original reducer when calling `createStore`.
+
+**`persistConfig` options:**
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `key` | `string` | — | **Required.** The key used to store state in the storage engine. |
+| `storage` | `object` | — | **Required.** The storage engine (see [Storage Engines](#storage-engines)). |
+| `version` | `number` | `-1` | Integer version of your state shape. Used with `createMigrate` to run migrations. |
+| `whitelist` | `string[]` | — | Only these reducer keys will be persisted. All others are ignored. |
+| `blacklist` | `string[]` | — | These reducer keys will not be persisted. All others are saved. |
+| `transforms` | `Transform[]` | — | Functions to transform state before writing to or after reading from storage. |
+| `throttle` | `number` | — | Milliseconds to throttle write calls to the storage engine. |
+| `migrate` | `function` | — | Custom migration function. Receives stored state and returns a promise of new state. |
+| `stateReconciler` | `function \| false` | `autoMergeLevel1` | Controls how rehydrated state is merged. Pass `false` to disable reconciliation. |
+| `serialize` | `boolean` | `true` | Set to `false` to skip `JSON.stringify`/`JSON.parse` during storage operations. |
+| `timeout` | `number` | `5000` | Milliseconds to wait for storage to resolve before aborting. Useful for React Native. |
+| `debug` | `boolean` | `false` | Set to `true` to enable verbose logging. |
+| `writeFailHandler` | `function` | — | Called with the error if the storage engine fails during `setItem`. Useful for detecting quota exhaustion. |
 
 #### `persistStore(store, [config, callback])`
-  - arguments
-    - **store** *redux store* The store to be persisted.
-    - **config** *object* (typically null)
-      - If you want to avoid that the persistence starts immediately after calling `persistStore`, set the option manualPersist. Example: `{ manualPersist: true }` Persistence can then be started at any point with `persistor.persist()`. You usually want to do this if your storage is not ready when the `persistStore` call is made.
-    - **callback** *function* will be called after rehydration is finished.
-  - returns **persistor** object
 
-#### `persistor object`
-  - the persistor object is returned by persistStore with the following methods:
-    - `.purge()`
-      - purges state from disk and returns a promise
-    - `.flush()`
-      - immediately writes all pending state to disk and returns a promise
-    - `.pause()`
-      - pauses persistence
-    - `.persist()`
-      - resumes persistence
+Begins the persistence lifecycle and returns a `Persistor`.
+
+- **`store`** *redux store* — the store returned by `createStore` with your `persistedReducer`.
+- **`config`** *object* *(optional)*
+  - `manualPersist: true` — prevents persistence from starting automatically. Call `persistor.persist()` manually when your storage is ready. Useful when the storage engine is not available at startup (e.g. on certain React Native environments).
+- **`callback`** *function* *(optional)* — called once the initial rehydration is complete.
+- Returns a **Persistor** object.
+
+#### `persistor` object
+
+The `Persistor` is a small Redux store that drives the persistence lifecycle. It exposes the following methods:
+
+- **`.persist()`** — starts or resumes persistence. Called automatically unless `manualPersist` is set.
+- **`.pause()`** — pauses persistence. State changes will not be written to storage while paused.
+- **`.flush()`** — immediately writes all pending state to storage and returns a promise. Useful before app close or logout.
+- **`.purge()`** — removes all persisted state from storage and returns a promise. Note: this only clears storage — it does not reset the in-memory Redux state.
 
 ## State Reconciler
 State reconcilers define how incoming state is merged in with initial state. It is critical to choose the right state reconciler for your state. There are three options that ship out of the box, let's look at how each operates:
