@@ -11,6 +11,8 @@ Beyond basic persistence, the library also handles state shape migrations as you
 
 For a deeper look at the problem this project solves and why it was built, see [docs/project-purpose.md](./docs/project-purpose.md).
 
+> **Note on versioning:** The initial `v0.0.1` npm release was a proof-of-concept publish to establish the `@mdemichele/redux-persist` package name. The next release will be `v6.1.0`, aligning with the actual version of the codebase (the TypeScript fork) and providing a meaningful starting point for future semantic versioning.
+
 ## Project Timeline
 
 - June 9, 2026: v0.0.1 released to npm as `@mdemichele/redux-persist`
@@ -23,20 +25,6 @@ For a deeper look at the problem this project solves and why it was built, see [
   - ([@ckalika](https://github.com/ckalika)) did great work taking over maintenance of the project from [@rt2zz](https://github.com/rt2zz)
 - July 22nd, 2015: Project originally created by [@rt2zz](https://github.com/rt2zz)
 
-## v0.0.1
-v0.0.1 is the currently maintained version. No changes from v6. We're choosing to start with a fresh v0.0.1 to signal the change in maintainership and repository move. 
-
-## v6 upgrade [DEPRECATED]
-**Web**: no breaking changes
-**React Native**: Users must now explicitly pass their storage engine in. e.g.
-```js
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const persistConfig = {
-  //...
-  storage: AsyncStorage
-}
-```
 
 ## Quickstart
 `npm install @mdemichele/redux-persist`
