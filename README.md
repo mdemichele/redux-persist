@@ -36,7 +36,11 @@ Usage Examples:
 4. Code Splitting [coming soon]
 
 #### Basic Usage
-Basic usage involves adding `persistReducer` and `persistStore` to your setup. **IMPORTANT** Every app needs to decide how many levels of state they want to "merge". The default is 1 level. Please read through the [state reconciler docs](#state-reconciler) for more information.
+
+There are two required steps:
+
+1. Wrap your root reducer with `persistReducer` and a configuration object.
+2. Call `persistStore` on the resulting store.
 
 ```js
 // configureStore.js
@@ -48,8 +52,8 @@ import storage from '@mdemichele/redux-persist/lib/storage' // defaults to local
 import rootReducer from './reducers'
 
 const persistConfig = {
-  key: 'root',
-  storage,
+  key: 'root',     // the key used to store state in storage
+  storage,         // the storage engine to use
 }
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
@@ -61,12 +65,25 @@ export default () => {
 }
 ```
 
-If you are using react, wrap your root component with [PersistGate](./docs/PersistGate.md). This delays the rendering of your app's UI until your persisted state has been retrieved and saved to redux. **NOTE** the `PersistGate` loading prop can be null, or any react instance, e.g. `loading={<Loading />}`
+**`persistConfig`** requires two fields at minimum:
+- `key` — the storage key under which the entire persisted state is stored. Using `'root'` is conventional for top-level persistence.
+- `storage` — the storage engine. The default import (`@mdemichele/redux-persist/lib/storage`) uses `localStorage` on web. See [Storage Engines](#storage-engines) for other options.
+
+**`persistReducer(config, reducer)`** returns an enhanced reducer that handles the `PERSIST`, `REHYDRATE`, and `PURGE` actions automatically. Swap it in place of your original root reducer — no other changes to your reducer logic are needed.
+
+**`persistStore(store)`** returns a `Persistor` object that drives the persistence lifecycle. It immediately begins reading from storage and dispatches a `REHYDRATE` action once the stored state is loaded. The `Persistor` also exposes methods for pausing, resuming, flushing, and purging persistence — see the [API](#api) section for details.
+
+> **Important:** Every app needs to choose how many levels of state to merge when rehydrated data is loaded back in. The default (`autoMergeLevel1`) performs a shallow one-level merge. Read through the [State Reconciler](#state-reconciler) section to choose the right option for your app.
+
+**React: wrapping your app with `PersistGate`**
+
+Because rehydration is asynchronous, your app may briefly render with default state before persisted data arrives. Wrap your root component with `PersistGate` to hold rendering until rehydration is complete.
 
 ```js
-import { PersistGate } from '@mdemichele/redux-persist/integration/react'
+// App.js
 
-// ... normal setup, create store and persistor, import components etc.
+import { PersistGate } from '@mdemichele/redux-persist/integration/react'
+import { store, persistor } from './configureStore'
 
 const App = () => {
   return (
@@ -78,6 +95,9 @@ const App = () => {
   );
 };
 ```
+
+- The `loading` prop is rendered while rehydration is in progress. Pass `null` to render nothing, or a loading component such as `loading={<LoadingScreen />}`.
+- `PersistGate` also accepts a function as children: the function receives a single `bootstrapped` boolean argument and is re-invoked once persistence is complete, which is useful for adding transition animations.
 
 ## API
 [Full API](./docs/api.md)
