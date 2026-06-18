@@ -149,34 +149,86 @@ The `Persistor` is a small Redux store that drives the persistence lifecycle. It
 - **`.purge()`** — removes all persisted state from storage and returns a promise. Note: this only clears storage — it does not reset the in-memory Redux state.
 
 ## State Reconciler
-State reconcilers define how incoming state is merged in with initial state. It is critical to choose the right state reconciler for your state. There are three options that ship out of the box, let's look at how each operates:
 
-1. **hardSet** (`import hardSet from '@mdemichele/redux-persist/lib/stateReconciler/hardSet'`)
-This will hard set incoming state. This can be desirable in some cases where persistReducer is nested deeper in your reducer tree, or if you do not rely on initialState in your reducer.
-   - **incoming state**: `{ foo: incomingFoo }`
-   - **initial state**: `{ foo: initialFoo, bar: initialBar }`
-   - **reconciled state**: `{ foo: incomingFoo }` // note bar has been dropped
-2. **autoMergeLevel1** (default)
-This will auto merge one level deep. Auto merge means if the some piece of substate was modified by your reducer during the REHYDRATE action, it will skip this piece of state. Level 1 means it will shallow merge 1 level deep.
-   - **incoming state**: `{ foo: incomingFoo }`
-   - **initial state**: `{ foo: initialFoo, bar: initialBar }`
-   - **reconciled state**: `{ foo: incomingFoo, bar: initialBar }` // note incomingFoo overwrites initialFoo
-3. **autoMergeLevel2** (`import autoMergeLevel2 from '@mdemichele/redux-persist/lib/stateReconciler/autoMergeLevel2'`)
-This acts just like autoMergeLevel1, except it shallow merges two levels
-   - **incoming state**: `{ foo: incomingFoo }`
-   - **initial state**: `{ foo: initialFoo, bar: initialBar }`
-   - **reconciled state**: `{ foo: mergedFoo, bar: initialBar }` // note: initialFoo and incomingFoo are shallow merged
+When your app loads, redux-persist reads the previously saved state from storage and merges it back into the Redux store. A **state reconciler** is the function that controls exactly how that merge happens — specifically, how the rehydrated (stored) state is combined with the reducer's current initial state.
 
-#### Example
+This matters because your reducer's initial state may have changed since the last time the user ran the app (e.g. you added a new field). The reconciler decides whether to keep the stored value, use the new initial value, or merge the two.
+
+There are three reconcilers available out of the box:
+
+---
+
+**1. `autoMergeLevel1`** *(default)*
+
+```js
+// No import needed — this is the default behavior
+```
+
+Performs a shallow merge one level deep. For each top-level key in the stored state:
+- If the reducer has already modified that key during the `REHYDRATE` action, the stored value is skipped (the reducer's value wins).
+- Otherwise, the stored value overwrites the initial state value.
+
+Keys that exist in initial state but not in stored state are preserved.
+
+```
+incoming state:   { foo: incomingFoo }
+initial state:    { foo: initialFoo, bar: initialBar }
+reconciled state: { foo: incomingFoo, bar: initialBar }
+```
+
+**Best for:** Most apps. Safe default that preserves new reducer keys while restoring previously saved values.
+
+---
+
+**2. `autoMergeLevel2`**
+
+```js
+import autoMergeLevel2 from '@mdemichele/redux-persist/lib/stateReconciler/autoMergeLevel2'
+```
+
+Behaves like `autoMergeLevel1` but goes one level deeper: if a top-level key holds a plain object, the stored and initial values for that object are themselves shallow-merged rather than the stored value simply overwriting the initial.
+
+```
+incoming state:   { foo: { a: 1 } }
+initial state:    { foo: { a: 0, b: 2 }, bar: initialBar }
+reconciled state: { foo: { a: 1, b: 2 }, bar: initialBar }
+```
+
+**Best for:** Apps where top-level state keys hold objects with multiple sub-fields, and you want new sub-fields from the reducer's initial state to survive rehydration.
+
+---
+
+**3. `hardSet`**
+
 ```js
 import hardSet from '@mdemichele/redux-persist/lib/stateReconciler/hardSet'
+```
+
+Replaces state entirely with the stored (inbound) state. No merging occurs. Keys that exist in the initial state but not in stored state are dropped.
+
+```
+incoming state:   { foo: incomingFoo }
+initial state:    { foo: initialFoo, bar: initialBar }
+reconciled state: { foo: incomingFoo }    // bar is dropped
+```
+
+**Best for:** Nested `persistReducer` configurations, or reducers that do not rely on `initialState` at all. Use with caution at the root level — new state keys added to your reducer will be missing until the user clears storage.
+
+---
+
+**Configuring a reconciler:**
+
+```js
+import autoMergeLevel2 from '@mdemichele/redux-persist/lib/stateReconciler/autoMergeLevel2'
 
 const persistConfig = {
   key: 'root',
   storage,
-  stateReconciler: hardSet,
+  stateReconciler: autoMergeLevel2,
 }
 ```
+
+Pass `stateReconciler: false` to disable reconciliation entirely — the stored state will be returned as-is with no merging.
 
 ## React Integration
 Redux persist ships with react integration as a convenience. The `PersistGate` component is the recommended way to delay rendering until persistence is complete. It works in one of two modes:
