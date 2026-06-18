@@ -16,8 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Circular self-referencing `redux-persist` runtime dependency from `package.json`
 - Stale Travis CI badge from README
 
-## [6.1.0] - 2021-10-17
-Thanks to [@smellman](https://github.com/smellman) for the TypeScript updates.
+## [6.1.0] - 2021-10-17 *(never published to npm)*
+Thanks to [@smellman](https://github.com/smellman) for the TypeScript updates. This version was merged into the repository but was never released as an npm package. It will be the next version published under `@mdemichele/redux-persist`.
 
 ### Added
 - TypeScript support
