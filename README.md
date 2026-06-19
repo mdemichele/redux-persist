@@ -231,47 +231,76 @@ const persistConfig = {
 Pass `stateReconciler: false` to disable reconciliation entirely — the stored state will be returned as-is with no merging.
 
 ## React Integration
-Redux persist ships with react integration as a convenience. The `PersistGate` component is the recommended way to delay rendering until persistence is complete. It works in one of two modes:
-1. `loading` prop: The provided loading value will be rendered until persistence is complete at which point children will be rendered.
-2. function children: The function will be invoked with a single `bootstrapped` argument. When bootstrapped is true, persistence is complete and it is safe to render the full app. This can be useful for adding transition animations.
+
+See the [Basic Usage](#basic-usage) section above for a full walkthrough of `PersistGate`. In summary, `PersistGate` delays rendering your app until rehydration is complete, and supports two modes:
+
+1. **`loading` prop** — renders the provided value (or `null`) while rehydration is in progress, then renders children.
+2. **Function children** — passes a `bootstrapped` boolean to a render function, giving you control over transitions and animations.
+
+```js
+// Mode 1: loading prop
+<PersistGate loading={<LoadingScreen />} persistor={persistor}>
+  <RootComponent />
+</PersistGate>
+
+// Mode 2: function children
+<PersistGate persistor={persistor}>
+  {(bootstrapped) => bootstrapped ? <RootComponent /> : <LoadingScreen />}
+</PersistGate>
+```
 
 ## Blacklist & Whitelist
-By Example:
+
+By default, redux-persist saves every key in your root reducer. Use `blacklist` or `whitelist` in your `persistConfig` to control which slices of state are persisted.
+
+- **`blacklist`** — persist everything *except* the listed keys.
+- **`whitelist`** — persist *only* the listed keys.
+
 ```js
-// BLACKLIST
+// Persist everything except ‘navigation’
 const persistConfig = {
-  key: 'root',
-  storage: storage,
-  blacklist: ['navigation'] // navigation will not be persisted
+  key: ‘root’,
+  storage,
+  blacklist: [‘navigation’],
 };
 
-// WHITELIST
+// Persist only ‘auth’ and ‘userPreferences’
 const persistConfig = {
-  key: 'root',
-  storage: storage,
-  whitelist: ['navigation'] // only navigation will be persisted
+  key: ‘root’,
+  storage,
+  whitelist: [‘auth’, ‘userPreferences’],
 };
 ```
 
-## Nested Persists
-Nested persist can be useful for including different storage adapters, code splitting, or deep filtering. For example while blacklist and whitelist only work one level deep, but we can use a nested persist to blacklist a deeper value:
-```js
-import { combineReducers } from 'redux'
-import { persistReducer } from '@mdemichele/redux-persist'
-import storage from '@mdemichele/redux-persist/lib/storage'
+> **Note:** `blacklist` and `whitelist` only filter at the top level of your state tree. To filter keys nested deeper than one level, use [Nested Persists](#nested-persists).
 
-import { authReducer, otherReducer } from './reducers'
+## Nested Persists
+
+Nesting a `persistReducer` inside another `persistReducer` gives you independent persistence configuration for different parts of your state tree. Common use cases include:
+
+- **Deep filtering** — `blacklist`/`whitelist` only work one level deep, but a nested persist lets you exclude specific sub-keys.
+- **Different storage engines** — persist sensitive data (e.g. auth tokens) to a secure store while keeping the rest in `localStorage`.
+- **Code splitting** — configure persistence independently for lazily loaded reducers.
+
+In the example below, the root config excludes the entire `auth` slice from its own persistence, and a separate config for `auth` handles its own persistence — excluding just the `somethingTemporary` sub-key.
+
+```js
+import { combineReducers } from ‘redux’
+import { persistReducer } from ‘@mdemichele/redux-persist’
+import storage from ‘@mdemichele/redux-persist/lib/storage’
+
+import { authReducer, otherReducer } from ‘./reducers’
 
 const rootPersistConfig = {
-  key: 'root',
-  storage: storage,
-  blacklist: ['auth']
+  key: ‘root’,
+  storage,
+  blacklist: [‘auth’], // auth is excluded here — it manages its own persistence below
 }
 
 const authPersistConfig = {
-  key: 'auth',
-  storage: storage,
-  blacklist: ['somethingTemporary']
+  key: ‘auth’,
+  storage,
+  blacklist: [‘somethingTemporary’], // only this sub-key is excluded from auth persistence
 }
 
 const rootReducer = combineReducers({
@@ -283,84 +312,149 @@ export default persistReducer(rootPersistConfig, rootReducer)
 ```
 
 ## Migrations
-`persistReducer` has a general purpose "migrate" config which will be called after getting stored state but before actually reconciling with the reducer. It can be any function which takes state as an argument and returns a promise to return a new state object.
 
-Redux Persist ships with `createMigrate`, which helps create a synchronous migration for moving from any version of stored state to the current state version. [[Additional information]](./docs/migrations.md)
+As your app evolves, the shape of your Redux state may change — you might rename a key, remove a field, or restructure a slice entirely. Users who already have data persisted under the old shape need a migration path so their stored state remains valid.
 
-## Transforms
-Transforms allow you to customize the state object that gets persisted and rehydrated.
+`persistReducer` accepts a `migrate` config option — a function that receives the stored state and the current version number, and returns a promise resolving to the migrated state. It runs after reading from storage but before state reconciliation.
 
-There are several libraries that tackle some common implementations for transforms.
-- [immutable](https://github.com/rt2zz/redux-persist-transform-immutable) - support immutable reducers
-- [seamless-immutable](https://github.com/hilkeheremans/redux-persist-seamless-immutable) - support seamless-immutable reducers
-- [compress](https://github.com/rt2zz/redux-persist-transform-compress) - compress your serialized state with lz-string
-- [encrypt](https://github.com/maxdeviant/redux-persist-transform-encrypt) - encrypt your serialized state with AES
-- [filter](https://github.com/edy/redux-persist-transform-filter) - store or load a subset of your state
-- [filter-immutable](https://github.com/actra-development/redux-persist-transform-filter-immutable) - store or load a subset of your state with support for immutablejs
-- [expire](https://github.com/gabceb/redux-persist-transform-expire) - expire a specific subset of your state based on a property
-- [expire-reducer](https://github.com/kamranahmedse/redux-persist-expire) - more flexible alternative to expire transformer above with more options
-
-When the state object gets persisted, it first gets serialized with `JSON.stringify()`. If parts of your state object are not mappable to JSON objects, the serialization process may transform these parts of your state in unexpected ways. For example, the javascript [Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set) type does not exist in JSON. When you try to serialize a Set via `JSON.stringify()`, it gets converted to an empty object. Probably not what you want.
-
-Below is a Transform that successfully persists a Set property, which simply converts it to an array and back. In this way, the Set gets converted to an Array, which is a recognized data structure in JSON. When pulled out of the persisted store, the array gets converted back to a Set before being saved to the redux store.
+Redux Persist ships with `createMigrate` to help write these migrations in a structured way:
 
 ```js
-import { createTransform } from '@mdemichele/redux-persist';
+import { createMigrate } from ‘@mdemichele/redux-persist’
 
-const SetTransform = createTransform(
-  // transform state on its way to being serialized and persisted.
-  (inboundState, key) => {
-    // convert mySet to an Array.
-    return { ...inboundState, mySet: [...inboundState.mySet] };
+const migrations = {
+  0: (state) => {
+    // version 0: initial shape, no migration needed
+    return state
   },
-  // transform state being rehydrated
-  (outboundState, key) => {
-    // convert mySet back to a Set.
-    return { ...outboundState, mySet: new Set(outboundState.mySet) };
+  1: (state) => {
+    // version 1: ‘userInfo’ was renamed to ‘user’
+    return {
+      ...state,
+      user: state.userInfo,
+      userInfo: undefined,
+    }
   },
-  // define which reducers this transform gets called for.
-  { whitelist: ['someReducer'] }
-);
-
-export default SetTransform;
-```
-
-The `createTransform` function takes three parameters.
-1. An "inbound" function that gets called right before state is persisted (optional).
-2. An "outbound" function that gets called right before state is rehydrated (optional).
-3. A config object that determines which keys in your state will be transformed (by default no keys are transformed).
-
-In order to take effect transforms need to be added to a `PersistReducer`’s config object.
-
-```
-import storage from '@mdemichele/redux-persist/lib/storage'
-import { SetTransform } from './transforms';
+}
 
 const persistConfig = {
-  key: 'root',
-  storage: storage,
-  transforms: [SetTransform]
-};
+  key: ‘root’,
+  storage,
+  version: 1,
+  migrate: createMigrate(migrations, { debug: false }),
+}
 ```
 
+`createMigrate` runs all migrations between the stored version and the current `version` number in sequence. For more advanced usage (async migrations, error handling), pass your own function to `migrate` directly.
+
+For further details see [docs/migrations.md](./docs/migrations.md).
+
+## Transforms
+
+Transforms let you intercept and modify state as it is written to storage (inbound) or read back from storage (outbound). This is useful when your state contains values that do not serialize cleanly to JSON — such as `Set`, `Map`, `Date`, class instances, or Immutable.js structures.
+
+`createTransform` takes three arguments:
+1. **Inbound function** — called before state is serialized and written to storage. Receives `(subState, key)`.
+2. **Outbound function** — called after state is read from storage, before it is rehydrated into the store. Receives `(subState, key)`.
+3. **Config object** — use `whitelist` or `blacklist` to limit which reducer keys the transform applies to. Without this, the transform runs for every persisted key.
+
+**Example: persisting a `Set`**
+
+`JSON.stringify` converts a `Set` to an empty object `{}`, losing all data. This transform converts it to an array for storage and back to a `Set` on rehydration:
+
+```js
+import { createTransform } from ‘@mdemichele/redux-persist’
+
+const SetTransform = createTransform(
+  (inboundState, key) => ({
+    ...inboundState,
+    mySet: [...inboundState.mySet], // Set → Array before storage
+  }),
+  (outboundState, key) => ({
+    ...outboundState,
+    mySet: new Set(outboundState.mySet), // Array → Set after rehydration
+  }),
+  { whitelist: [‘someReducer’] }
+)
+
+export default SetTransform
+```
+
+Register transforms in your `persistConfig`:
+
+```js
+import storage from ‘@mdemichele/redux-persist/lib/storage’
+import { SetTransform } from ‘./transforms’
+
+const persistConfig = {
+  key: ‘root’,
+  storage,
+  transforms: [SetTransform],
+}
+```
+
+Multiple transforms can be provided — they are applied in array order on the way in, and in reverse order on the way out.
+
+**Community transform libraries:**
+
+| Library | Description |
+|---|---|
+| [redux-persist-transform-immutable](https://github.com/rt2zz/redux-persist-transform-immutable) | Support Immutable.js reducers |
+| [redux-persist-seamless-immutable](https://github.com/hilkeheremans/redux-persist-seamless-immutable) | Support seamless-immutable reducers |
+| [redux-persist-transform-compress](https://github.com/rt2zz/redux-persist-transform-compress) | Compress serialized state with lz-string |
+| [redux-persist-transform-encrypt](https://github.com/maxdeviant/redux-persist-transform-encrypt) | Encrypt serialized state with AES |
+| [redux-persist-transform-filter](https://github.com/edy/redux-persist-transform-filter) | Persist or rehydrate a subset of state |
+| [redux-persist-transform-filter-immutable](https://github.com/actra-development/redux-persist-transform-filter-immutable) | Subset filtering with Immutable.js support |
+| [redux-persist-transform-expire](https://github.com/gabceb/redux-persist-transform-expire) | Expire state subsets based on a property |
+| [redux-persist-expire](https://github.com/kamranahmedse/redux-persist-expire) | More flexible expiry with additional options |
+
 ## Storage Engines
-- **localStorage** `import storage from '@mdemichele/redux-persist/lib/storage'`
-- **sessionStorage** `import storageSession from '@mdemichele/redux-persist/lib/storage/session'`
-- **[electron storage](https://github.com/psperber/redux-persist-electron-storage)** Electron support via [electron store](https://github.com/sindresorhus/electron-store) - [DEPRECATED]
-- **[redux-persist-cookie-storage](https://github.com/abersager/redux-persist-cookie-storage)** Cookie storage engine, works in browser and Node.js, for universal / isomorphic apps
-- **[redux-persist-expo-filesystem](https://github.com/t73liu/redux-persist-expo-filesystem)** react-native, similar to redux-persist-filesystem-storage but does not require linking or ejecting CRNA/Expo app. Only available if using Expo SDK (Expo, create-react-native-app, standalone).
-- **[redux-persist-expo-securestore](https://github.com/Cretezy/redux-persist-expo-securestore)** react-native, for sensitive information using Expo's SecureStore. Only available if using Expo SDK (Expo, create-react-native-app, standalone).
-- **[redux-persist-fs-storage](https://github.com/leethree/redux-persist-fs-storage)** react-native-fs engine
-- **[redux-persist-filesystem-storage](https://github.com/robwalkerco/redux-persist-filesystem-storage)** react-native, to mitigate storage size limitations in android ([#199](https://github.com/rt2zz/redux-persist/issues/199), [#284](https://github.com/rt2zz/redux-persist/issues/284))
-  **[redux-persist-indexeddb-storage](https://github.com/machester4/redux-persist-indexeddb-storage)** recommended for web via [localForage](https://github.com/localForage/localForage)
-- **[redux-persist-node-storage](https://github.com/pellejacobs/redux-persist-node-storage)** for use in nodejs environments.
-- **[redux-persist-pouchdb](https://github.com/yanick/redux-persist-pouchdb)** Storage engine for PouchDB.
-- **[redux-persist-sensitive-storage](https://github.com/CodingZeal/redux-persist-sensitive-storage)** react-native, for sensitive information (uses [react-native-sensitive-info](https://github.com/mCodex/react-native-sensitive-info)).
-- **[redux-persist-weapp-storage](https://github.com/cuijiemmx/redux-casa/tree/master/packages/redux-persist-weapp-storage)** Storage engine for wechat mini program, also compatible with wepy
-- **[redux-persist-webextension-storage](https://github.com/ssorallen/redux-persist-webextension-storage)** Storage engine for browser (Chrome, Firefox) web extension storage
-- **[@bankify/redux-persist-realm](https://github.com/bankifyio/redux-persist-realm)** Storage engine for Realm database, you will need to install Realm first
-- **custom** any conforming storage api implementing the following methods: `setItem` `getItem` `removeItem`. (**NB**: These methods must support promises)
+
+redux-persist ships with two built-in storage engines for web:
+
+```js
+import storage from ‘@mdemichele/redux-persist/lib/storage’         // localStorage (default for web)
+import storageSession from ‘@mdemichele/redux-persist/lib/storage/session’ // sessionStorage
+```
+
+`sessionStorage` behaves like `localStorage` but is cleared when the browser tab is closed — useful for session-scoped state that should not survive past the current session.
+
+**Writing a custom storage engine:**
+
+Any object that implements the following async interface can be used as a storage engine:
+
+```js
+const customStorage = {
+  getItem: (key) => Promise<string | null>,
+  setItem: (key, value) => Promise<void>,
+  removeItem: (key) => Promise<void>,
+}
+```
+
+**Community storage engines:**
+
+| Engine | Environment | Description |
+|---|---|---|
+| [redux-persist-cookie-storage](https://github.com/abersager/redux-persist-cookie-storage) | Web / Node.js | Cookie-based storage, works universally |
+| [redux-persist-indexeddb-storage](https://github.com/machester4/redux-persist-indexeddb-storage) | Web | IndexedDB via localForage — recommended for large state |
+| [redux-persist-webextension-storage](https://github.com/ssorallen/redux-persist-webextension-storage) | Chrome / Firefox | Browser extension storage API |
+| [redux-persist-node-storage](https://github.com/pellejacobs/redux-persist-node-storage) | Node.js | File-based storage for Node environments |
+| [redux-persist-expo-filesystem](https://github.com/t73liu/redux-persist-expo-filesystem) | React Native (Expo) | Filesystem storage — no linking or ejecting required |
+| [redux-persist-expo-securestore](https://github.com/Cretezy/redux-persist-expo-securestore) | React Native (Expo) | Expo SecureStore for sensitive data |
+| [redux-persist-sensitive-storage](https://github.com/CodingZeal/redux-persist-sensitive-storage) | React Native | Sensitive data via react-native-sensitive-info |
+| [redux-persist-fs-storage](https://github.com/leethree/redux-persist-fs-storage) | React Native | react-native-fs engine |
+| [redux-persist-filesystem-storage](https://github.com/robwalkerco/redux-persist-filesystem-storage) | React Native (Android) | Mitigates Android storage size limitations |
+| [redux-persist-pouchdb](https://github.com/yanick/redux-persist-pouchdb) | Web / Node.js | PouchDB storage engine |
+| [redux-persist-weapp-storage](https://github.com/cuijiemmx/redux-casa/tree/master/packages/redux-persist-weapp-storage) | WeChat Mini Program | Compatible with wepy |
+| [@bankify/redux-persist-realm](https://github.com/bankifyio/redux-persist-realm) | React Native | Realm database (requires Realm installation) |
 
 ## Community & Contributing
 
-I will be updating this section shortly. If you have a pull request that you've got outstanding, please reach out and I will try to review it and get it integrated. As we've shifted to TypeScript, that may necessitate some changes, but I'm happy to help in that regard, wherever I can.
+Contributions are welcome. If you have an outstanding pull request from the original `redux-persist` repository, please open a new PR here and reference the original — we will review it and work with you to get it integrated. As the codebase has moved to TypeScript, some changes may be needed, but we are happy to help with that.
+
+To report a bug or request a feature, please [open an issue](https://github.com/mdemichele/redux-persist/issues).
+
+To submit a contribution:
+1. Fork the repository and create a branch for your change.
+2. Run the test suite with `npm test` before submitting.
+3. Open a pull request with a clear description of what the change does and why.
