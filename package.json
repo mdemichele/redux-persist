@@ -6,6 +6,16 @@
   "main": "lib/index.js",
   "module": "es/index.js",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./es/index.js",
+      "require": "./lib/index.js"
+    },
+    "./integration/react": {
+      "import": "./es/integration/react.js",
+      "require": "./lib/integration/react.js"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mdemichele/redux-persist.git"
@@ -20,8 +30,8 @@
   "scripts": {
     "ava": "ava",
     "build": "npm run build:commonjs && npm run build:es && npm run build:umd",
-    "build:commonjs": "tsc --module commonjs --moduleResolution node --ignoreDeprecations 6.0 --outDir lib",
-    "build:es": "tsc --module es2015 --outDir es",
+    "build:commonjs": "tsc --module commonjs --moduleResolution node --ignoreDeprecations 6.0 --outDir lib && node scripts/create-cjs-pkg.cjs",
+    "build:es": "tsc --module es2015 --outDir es && node scripts/fix-esm-extensions.cjs && node scripts/create-esm-pkg.cjs",
     "build:umd": "rollup -c",
     "clean": "rimraf dist && rimraf es && rimraf lib",
     "prepare": "npm run build",

@@ -5,6 +5,13 @@ The format is (mostly) based on [Keep a Changelog](https://keepachangelog.com/en
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [6.1.1] - 2026-06-18
+
+### Fixed
+- `require('@mdemichele/redux-persist')` now works in Node.js CJS environments. The root `"type":"module"` was causing Node to treat the CommonJS `lib/` output as ESM; the CJS build now writes a `lib/package.json` with `{"type":"commonjs"}` to override this in that subdirectory.
+- `import from '@mdemichele/redux-persist'` now works in Node.js ESM environments. The ESM `es/` build now patches relative import paths to include `.js` extensions (required by Node's ESM resolver) and writes an `es/package.json` with `{"type":"module"}` so Node correctly identifies the files as ES modules.
+- Added a proper `"exports"` field to `package.json` mapping `"require"` to `lib/` and `"import"` to `es/`, covering both the main entry point and `./integration/react`.
+
 ## [6.1.0] - 2026-06-18
 
 ### Added
