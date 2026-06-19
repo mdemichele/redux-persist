@@ -25,11 +25,7 @@ import purgeStoredState from './purgeStoredState'
 
 type PersistPartial = { _persist: PersistState } | any;
 const DEFAULT_TIMEOUT = 5000
-/*
-  @TODO add validation / handling for:
-  - persisting a reducer which has nested _persist
-  - handling actions that fire before reydrate is called
-*/
+
 export default function persistReducer<S extends KeyAccessState, A extends Action>(
   config: PersistConfig<S>,
   baseReducer: Reducer<S, A>
@@ -55,6 +51,7 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
   let _persistoid: Persistoid | null = null
   let _purge = false
   let _paused = true
+  let _warnedAboutNestedPersist = false
   const conditionalUpdate = (state: any) => {
     // update the persistoid only if we are rehydrated and not paused
     if (state._persist.rehydrated && _persistoid && !_paused)
@@ -65,6 +62,22 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
   return (state: any, action: any) => {
     const { _persist, ...rest } = state || {}
     const restState: S = rest
+
+    if (process.env.NODE_ENV !== 'production' && !_warnedAboutNestedPersist && restState) {
+      const nestedPersistKeys = Object.keys(restState).filter(
+        (key: string) =>
+          restState[key] &&
+          typeof restState[key] === 'object' &&
+          '_persist' in restState[key]
+      )
+      if (nestedPersistKeys.length > 0) {
+        _warnedAboutNestedPersist = true
+        console.error(
+          `redux-persist: nested _persist detected in reducer "${config.key}" for state keys: [${nestedPersistKeys.join(', ')}]. ` +
+          'This likely means you are nesting persistReducer. Ensure whitelist/blacklist is configured correctly to avoid persisting internal _persist metadata.'
+        )
+      }
+    }
 
     if (action.type === PERSIST) {
       let _sealed = false
@@ -194,6 +207,13 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
 
     // if we have not already handled PERSIST, straight passthrough
     if (!_persist) return baseReducer(state, action)
+
+    if (process.env.NODE_ENV !== 'production' && !_persist.rehydrated) {
+      console.warn(
+        `redux-persist: action "${action.type}" was dispatched for key "${config.key}" before rehydration completed. ` +
+        'This state change may be overwritten once rehydration finishes.'
+      )
+    }
 
     // run base reducer:
     // is state modified ? return original : return updated
