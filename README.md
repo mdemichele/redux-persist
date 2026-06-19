@@ -37,6 +37,8 @@ Usage Examples:
 
 #### Basic Usage
 
+> For a working reference implementation, see the [redux-persist-test-app](../redux-persist-test-app) example app.
+
 There are two required steps:
 
 1. Wrap your root reducer with `persistReducer` and a configuration object.
