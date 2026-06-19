@@ -29,10 +29,10 @@ Run npm's built-in version command. This triggers the `version` lifecycle script
 npm version minor
 
 # Or pin an exact version:
-npm version 6.1.0
+npm version 6.2.0
 ```
 
-This also creates a git commit (`v6.1.0`) and a signed tag (`v6.1.0`) automatically.
+This also creates a git commit and a tag automatically.
 
 - [ ] Confirm `package.json` version field matches the intended release
 - [ ] Confirm `LIBSIZE.md` has a new entry for this version
@@ -40,13 +40,40 @@ This also creates a git commit (`v6.1.0`) and a signed tag (`v6.1.0`) automatica
 
 ## Push to GitHub
 
+Before pushing, check whether the remote has commits you don't have locally:
+
+```bash
+git fetch origin
+git status
+```
+
+If the remote is ahead, rebase first — otherwise the push will be rejected:
+
+```bash
+git pull --rebase origin master
+```
+
+> **Important:** `npm version` creates a tag on the local commit. If you rebase after tagging,
+> that commit gets a new hash and the tag becomes stale. Verify and re-point it before pushing:
+>
+> ```bash
+> # Find the rebased version commit
+> git log --oneline | grep <version>
+>
+> # Re-point the tag if the hash doesn't match
+> git tag -d vX.Y.Z
+> git tag vX.Y.Z <new-commit-hash>
+> ```
+
+Then push:
+
 ```bash
 git push origin master
 git push origin --tags
 ```
 
 - [ ] Branch pushed
-- [ ] Tag pushed (verify tag appears on GitHub under **Releases → Tags**)
+- [ ] Tag pushed and points to the correct version commit (verify on GitHub under **Releases → Tags**)
 
 ## Publish to npm
 
@@ -54,20 +81,40 @@ git push origin --tags
 npm publish --access public
 ```
 
-- [ ] Confirm the package appears at https://www.npmjs.com/package/@mdemichele/redux-persist
-- [ ] Confirm the new version is the `latest` tag (`npm info @mdemichele/redux-persist dist-tags`)
+- [ ] Confirm the new version is the `latest` tag: `npm info @mdemichele/redux-persist dist-tags`
 
 ## Create a GitHub Release
 
-1. Go to the repository on GitHub → **Releases** → **Draft a new release**
-2. Select the tag `v6.1.0`
-3. Set the title to `v6.1.0`
-4. Paste the CHANGELOG entry for this version as the release notes
-5. Publish the release
+```bash
+gh release create vX.Y.Z --title "vX.Y.Z" --notes-file /tmp/release-notes.md
+```
+
+Or via the GitHub UI: **Releases → Draft a new release**, select the tag, paste the CHANGELOG entry as the body.
 
 - [ ] GitHub release published and linked to the correct tag
 
 ## Post-release sanity check
 
-- [ ] Install the new version in a scratch project and verify it works: `npm install @mdemichele/redux-persist@6.1.0`
-- [ ] Update the README badge/version reference if it lists a specific version
+Install the published version in a scratch Node project and test both module formats:
+
+```bash
+mkdir /tmp/rp-sanity && cd /tmp/rp-sanity
+echo '{"name":"sanity","version":"1.0.0"}' > package.json
+npm install @mdemichele/redux-persist@X.Y.Z redux
+```
+
+**Test CJS (`require`):**
+```bash
+node -e "const { persistReducer, persistStore } = require('@mdemichele/redux-persist'); console.log(typeof persistReducer, typeof persistStore)"
+```
+
+**Test ESM (`import`):**
+```bash
+node --input-type=module <<< "import { persistReducer, persistStore } from '@mdemichele/redux-persist/es/index.js'; console.log(typeof persistReducer, typeof persistStore)"
+```
+
+Both should print `function function`.
+
+- [ ] CJS `require` works
+- [ ] ESM `import` works
+- [ ] Update the README version reference if it pins a specific version
