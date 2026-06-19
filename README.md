@@ -448,6 +448,16 @@ const customStorage = {
 | [redux-persist-weapp-storage](https://github.com/cuijiemmx/redux-casa/tree/master/packages/redux-persist-weapp-storage) | WeChat Mini Program | Compatible with wepy |
 | [@bankify/redux-persist-realm](https://github.com/bankifyio/redux-persist-realm) | React Native | Realm database (requires Realm installation) |
 
+## Roadmap
+
+### v6.1.0 — Target: June 30, 2026
+
+The next release will be `v6.1.0`, published to npm as `@mdemichele/redux-persist`. This version brings the TypeScript migration and GitHub Actions CI that have been in the codebase since 2021 but were never formally released as an npm package.
+
+No breaking changes are planned. The upgrade from `v0.0.1` is a drop-in replacement.
+
+If you have a bug fix or feature you would like to see included in `v6.1.0`, please [open an issue](https://github.com/mdemichele/redux-persist/issues) or submit a pull request before the release date.
+
 ## Community & Contributing
 
 Contributions are welcome. If you have an outstanding pull request from the original `redux-persist` repository, please open a new PR here and reference the original — we will review it and work with you to get it integrated. As the codebase has moved to TypeScript, some changes may be needed, but we are happy to help with that.
