@@ -11,11 +11,11 @@ Beyond basic persistence, the library also handles state shape migrations as you
 
 For a deeper look at the problem this project solves and why it was built, see [docs/project-purpose.md](./docs/project-purpose.md).
 
-> **Note on versioning:** The initial `v0.0.1` npm release was a proof-of-concept publish to establish the `@mdemichele/redux-persist` package name. The next release will be `v6.1.0`, aligning with the actual version of the codebase (the TypeScript fork) and providing a meaningful starting point for future semantic versioning.
+> **Note on versioning:** The initial `v0.0.1` npm release was a proof-of-concept publish to establish the `@mdemichele/redux-persist` package name. The first real release was `v6.1.0`, aligning with the actual version of the codebase (the TypeScript fork) and providing a meaningful starting point for future semantic versioning.
 
 ## Project Timeline
 
-- June 9, 2026: v0.0.1 released to npm as `@mdemichele/redux-persist`
+- June 9, 2026: v0.0.1 released to npm as `@mdemichele/redux-persist`. Following a regular release cadence from here on.
 - February 16, 2025: New Fork Created. I'm hoping we can revive this project and get it actively maintained again.
 - October 15th, 2021: Move to TypeScript (Thanks [@smellman](https://github.com/smellman))
   - As part of the work to upgrade the infrastructure used to build redux-persist, we're moving from Flow to TypeScript.
@@ -450,15 +450,6 @@ const customStorage = {
 | [redux-persist-weapp-storage](https://github.com/cuijiemmx/redux-casa/tree/master/packages/redux-persist-weapp-storage) | WeChat Mini Program | Compatible with wepy |
 | [@bankify/redux-persist-realm](https://github.com/bankifyio/redux-persist-realm) | React Native | Realm database (requires Realm installation) |
 
-## Roadmap
-
-### v6.1.0 — Target: June 30, 2026
-
-The next release will be `v6.1.0`, published to npm as `@mdemichele/redux-persist`. This version brings the TypeScript migration and GitHub Actions CI that have been in the codebase since 2021 but were never formally released as an npm package.
-
-No breaking changes are planned. The upgrade from `v0.0.1` is a drop-in replacement.
-
-If you have a bug fix or feature you would like to see included in `v6.1.0`, please [open an issue](https://github.com/mdemichele/redux-persist/issues) or submit a pull request before the release date.
 
 ## Community & Contributing
 
