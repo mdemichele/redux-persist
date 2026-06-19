@@ -1,9 +1,20 @@
 # Changelog
-All notable changes to this project (after v6.1.0) should be documented in this file.
+All notable changes to this project should be documented in this file.
 
 The format is (mostly) based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [6.1.0] - 2026-06-18
+
+### Added
+- Dev-mode validation in `persistReducer` that warns when nested `_persist` is detected in state, guarding against accidentally persisting a `persistReducer`-wrapped slice inside another `persistReducer`
+- Dev-mode validation in `persistReducer` that warns when actions are dispatched before rehydration completes, helping surface premature-dispatch bugs
+- Release checklist (`docs/release-checklist.md`) documenting the full npm publish process
+
+### Changed
+- Expanded README with detailed API reference, usage examples, state reconciler explanations, and a Roadmap section
+- Clarified versioning history in README and CHANGELOG (0.0.1 placeholder → 6.1.0 proper release)
 
 ## [0.0.1] - 2026-06-09
 
