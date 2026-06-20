@@ -37,7 +37,7 @@ Usage Examples:
 
 #### Basic Usage
 
-> For a working reference implementation, see the [redux-persist-test-app](../redux-persist-test-app) example app.
+> For a working reference implementation, see the [redux-persist-test-app](https://github.com/mdemichele/redux-persist-test-app) example app.
 
 There are two required steps:
 
