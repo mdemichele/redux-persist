@@ -115,10 +115,26 @@ export default function createPersistoid(config: PersistConfig<any>): Persistoid
   }
 
   function onWriteFail(err: any) {
-    // @TODO add fail handlers (typically storage full)
     if (writeFailHandler) writeFailHandler(err)
     if (err && process.env.NODE_ENV !== 'production') {
-      console.error('Error storing data', err)
+      if (
+        err.name === 'QuotaExceededError' ||
+        err.name === 'NS_ERROR_DOM_QUOTA_REACHED'
+      ) {
+        console.error(
+          'redux-persist/createPersistoid: storage quota exceeded. ' +
+            'State will not be persisted until storage is freed.',
+          err
+        )
+      } else if (err.name === 'SecurityError') {
+        console.error(
+          'redux-persist/createPersistoid: storage access denied. ' +
+            'State will not be persisted. This can occur in private browsing mode.',
+          err
+        )
+      } else {
+        console.error('redux-persist/createPersistoid: error storing data', err)
+      }
     }
   }
 
