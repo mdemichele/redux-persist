@@ -1,4 +1,4 @@
-`PersistGate` is a React component that acts as a render gate between your Redux store and your app's UI. `PersistGate` delays the rendering of your app's UI until your persisted state has been retrieved and saved to redux.
+`PersistGate` is a React component that delays the rendering of your app's UI until your persisted state has been retrieved and saved to redux. 
 
 **NOTE**: the `loading` prop can be `null` or any react instance to show during loading (e.g. a splash screen), for example `loading={<Loading />}`.
 
