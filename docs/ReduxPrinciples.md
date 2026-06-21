@@ -66,3 +66,14 @@ store.dispatch(setUsername('alice'))
 ```
 
 **Relevance to redux-persist:** redux-persist defines its own set of action types (all prefixed `persist/`) in `src/constants.ts`: `PERSIST`, `REHYDRATE`, `REGISTER`, `PURGE`, `FLUSH`, and `PAUSE`. These are dispatched internally by the library to coordinate the persistence lifecycle — you will encounter them throughout the source code.
+
+---
+
+## How persistStore Uses createStore
+
+`persistStore` (`src/persistStore.ts`) creates its own internal Redux store using `createStore` to track the persistence lifecycle. This internal store — referred to as `_pStore` in the source — uses a simple `persistorReducer` that manages two pieces of state:
+
+- `registry: string[]` — the keys of persisted reducers that have registered but not yet finished rehydrating
+- `bootstrapped: boolean` — becomes `true` once every registered reducer has rehydrated (i.e., `registry` is empty)
+
+The `Persistor` object returned to the caller spreads `_pStore` directly, so it exposes the standard Redux store API (`getState`, `dispatch`, `subscribe`) alongside the persistence-specific methods (`purge`, `flush`, `pause`, `persist`). When `PersistGate` checks `persistor.getState().bootstrapped` to decide whether to render the app, it is reading from this internal store.
