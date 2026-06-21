@@ -42,3 +42,27 @@ function counterReducer(state = { count: 0 }, action) {
 The `default` case is important — reducers must always return state, even when they don't recognize the action.
 
 **Relevance to redux-persist:** `persistReducer` is a higher-order reducer — it wraps your existing reducer and intercepts the special `PERSIST`, `REHYDRATE`, `PURGE`, `FLUSH`, and `PAUSE` action types to manage persistence, then delegates all other actions to your original reducer.
+
+---
+
+## Actions
+
+An action is a plain JavaScript object that describes something that happened. It is the only way to trigger a state change in Redux. Every action must have a `type` property — a string that identifies what occurred. Actions can also carry additional data in a `payload` field (or any other field name) that the reducer uses to compute the new state:
+
+```js
+// A simple action with just a type
+{ type: 'INCREMENT' }
+
+// An action carrying a payload
+{ type: 'SET_USERNAME', payload: 'alice' }
+```
+
+Actions are created and dispatched via `store.dispatch(action)`. A common pattern is to use *action creator* functions to avoid repeating the object literal everywhere:
+
+```js
+const setUsername = (name) => ({ type: 'SET_USERNAME', payload: name })
+
+store.dispatch(setUsername('alice'))
+```
+
+**Relevance to redux-persist:** redux-persist defines its own set of action types (all prefixed `persist/`) in `src/constants.ts`: `PERSIST`, `REHYDRATE`, `REGISTER`, `PURGE`, `FLUSH`, and `PAUSE`. These are dispatched internally by the library to coordinate the persistence lifecycle — you will encounter them throughout the source code.
