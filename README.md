@@ -435,20 +435,22 @@ const customStorage = {
 
 **Community storage engines:**
 
-| Engine | Environment | Description |
-|---|---|---|
-| [redux-persist-cookie-storage](https://github.com/abersager/redux-persist-cookie-storage) | Web / Node.js | Cookie-based storage, works universally |
-| [redux-persist-indexeddb-storage](https://github.com/machester4/redux-persist-indexeddb-storage) | Web | IndexedDB via localForage — recommended for large state |
-| [redux-persist-webextension-storage](https://github.com/ssorallen/redux-persist-webextension-storage) | Chrome / Firefox | Browser extension storage API |
-| [redux-persist-node-storage](https://github.com/pellejacobs/redux-persist-node-storage) | Node.js | File-based storage for Node environments |
-| [redux-persist-expo-filesystem](https://github.com/t73liu/redux-persist-expo-filesystem) | React Native (Expo) | Filesystem storage — no linking or ejecting required |
-| [redux-persist-expo-securestore](https://github.com/Cretezy/redux-persist-expo-securestore) | React Native (Expo) | Expo SecureStore for sensitive data |
-| [redux-persist-sensitive-storage](https://github.com/CodingZeal/redux-persist-sensitive-storage) | React Native | Sensitive data via react-native-sensitive-info |
-| [redux-persist-fs-storage](https://github.com/leethree/redux-persist-fs-storage) | React Native | react-native-fs engine |
-| [redux-persist-filesystem-storage](https://github.com/robwalkerco/redux-persist-filesystem-storage) | React Native (Android) | Mitigates Android storage size limitations |
-| [redux-persist-pouchdb](https://github.com/yanick/redux-persist-pouchdb) | Web / Node.js | PouchDB storage engine |
-| [redux-persist-weapp-storage](https://github.com/cuijiemmx/redux-casa/tree/master/packages/redux-persist-weapp-storage) | WeChat Mini Program | Compatible with wepy |
-| [@bankify/redux-persist-realm](https://github.com/bankifyio/redux-persist-realm) | React Native | Realm database (requires Realm installation) |
+| Engine | Environment | Description | Status |
+|---|---|---|---|
+| [@react-native-async-storage/async-storage](https://github.com/react-native-async-storage/async-storage) | React Native | Official community AsyncStorage — works directly as a storage engine | Active |
+| [react-native-mmkv](https://github.com/mrousavy/react-native-mmkv) | React Native | High-performance key-value storage — requires a [thin custom adapter](https://github.com/mrousavy/react-native-mmkv#redux-persist) | Active |
+| [redux-persist-expo-filesystem](https://github.com/t73liu/redux-persist-expo-filesystem) | React Native (Expo) | Filesystem storage — no linking or ejecting required | Active |
+| [redux-persist-expo-securestore](https://github.com/Cretezy/redux-persist-expo-securestore) | React Native (Expo) | Expo SecureStore for sensitive data | Active |
+| [redux-persist-filesystem-storage](https://github.com/robwalkerco/redux-persist-filesystem-storage) | React Native (Android) | Mitigates Android storage size limitations | Active |
+| [redux-persist-webextension-storage](https://github.com/ssorallen/redux-persist-webextension-storage) | Chrome / Firefox | Browser extension storage API | Unmaintained |
+| [redux-persist-cookie-storage](https://github.com/abersager/redux-persist-cookie-storage) | Web / Node.js | Cookie-based storage, works universally | Unmaintained |
+| [redux-persist-indexeddb-storage](https://github.com/machester4/redux-persist-indexeddb-storage) | Web | IndexedDB via localForage — recommended for large state | Unmaintained |
+| [redux-persist-node-storage](https://github.com/pellejacobs/redux-persist-node-storage) | Node.js | File-based storage for Node environments | Unmaintained |
+| [redux-persist-pouchdb](https://github.com/yanick/redux-persist-pouchdb) | Web / Node.js | PouchDB storage engine | Unmaintained |
+| [redux-persist-fs-storage](https://github.com/leethree/redux-persist-fs-storage) | React Native | react-native-fs engine | Unmaintained |
+| [redux-persist-weapp-storage](https://github.com/cuijiemmx/redux-casa/tree/master/packages/redux-persist-weapp-storage) | WeChat Mini Program | Compatible with wepy | Unmaintained |
+| [redux-persist-sensitive-storage](https://github.com/CodingZeal/redux-persist-sensitive-storage) | React Native | Sensitive data via react-native-sensitive-info | Archived |
+| [@bankify/redux-persist-realm](https://github.com/bankifyio/redux-persist-realm) | React Native | Realm database (requires Realm installation) | Archived |
 
 
 ## Community & Contributing
