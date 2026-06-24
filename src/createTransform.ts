@@ -1,6 +1,6 @@
 type TransformConfig = {
-  whitelist?: Array<string>,
-  blacklist?: Array<string>,
+  whitelist?: Array<string>
+  blacklist?: Array<string>
 }
 
 type TransformFn = (state: unknown, key: string, fullState: unknown) => unknown
@@ -23,12 +23,8 @@ export default function createTransform(
 
   return {
     in: (state: Record<string, unknown>, key: string, fullState: Record<string, unknown>) =>
-      !whitelistBlacklistCheck(key) && inbound
-        ? inbound(state, key, fullState)
-        : state,
+      !whitelistBlacklistCheck(key) && inbound ? inbound(state, key, fullState) : state,
     out: (state: Record<string, unknown>, key: string, fullState: Record<string, unknown>) =>
-      !whitelistBlacklistCheck(key) && outbound
-        ? outbound(state, key, fullState)
-        : state,
+      !whitelistBlacklistCheck(key) && outbound ? outbound(state, key, fullState) : state,
   }
 }

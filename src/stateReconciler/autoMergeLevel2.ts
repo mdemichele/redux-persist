@@ -1,5 +1,5 @@
 /*
-  autoMergeLevel2: 
+  autoMergeLevel2:
     - merges 2 level of substate
     - skips substate if already modified
     - this is essentially redux-perist v4 behavior
@@ -18,16 +18,13 @@ export default function autoMergeLevel2<S extends KeyAccessState>(
   // only rehydrate if inboundState exists and is an object
   if (inboundState && typeof inboundState === 'object') {
     const keys: (keyof S)[] = Object.keys(inboundState)
-    keys.forEach(key => {
+    keys.forEach((key) => {
       // ignore _persist data
       if (key === '_persist') return
       // if reducer modifies substate, skip auto rehydration
       if (originalState[key] !== reducedState[key]) {
         if (process.env.NODE_ENV !== 'production' && debug)
-          console.log(
-            'redux-persist/stateReconciler: sub state for key `%s` modified, skipping.',
-            key
-          )
+          console.log('redux-persist/stateReconciler: sub state for key `%s` modified, skipping.', key)
         return
       }
       if (isPlainEnoughObject(reducedState[key])) {
@@ -40,17 +37,8 @@ export default function autoMergeLevel2<S extends KeyAccessState>(
     })
   }
 
-  if (
-    process.env.NODE_ENV !== 'production' &&
-    debug &&
-    inboundState &&
-    typeof inboundState === 'object'
-  )
-    console.log(
-      `redux-persist/stateReconciler: rehydrated keys '${Object.keys(
-        inboundState
-      ).join(', ')}'`
-    )
+  if (process.env.NODE_ENV !== 'production' && debug && inboundState && typeof inboundState === 'object')
+    console.log(`redux-persist/stateReconciler: rehydrated keys '${Object.keys(inboundState).join(', ')}'`)
 
   return newState
 }

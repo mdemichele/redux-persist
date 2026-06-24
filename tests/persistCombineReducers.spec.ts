@@ -5,12 +5,12 @@ import test from 'ava'
 
 const config = {
   key: 'TestConfig',
-  storage: createMemoryStorage()
+  storage: createMemoryStorage(),
 }
 
-test('persistCombineReducers returns a function', t => {
+test('persistCombineReducers returns a function', (t) => {
   const reducer = persistCombineReducers(config, {
-    foo: () => ({})
+    foo: () => ({}),
   })
 
   t.is(typeof reducer, 'function')
@@ -18,6 +18,6 @@ test('persistCombineReducers returns a function', t => {
 
 /*
 test.skip('persistCombineReducers merges two levels deep of state', t => {
-  
+
 })
 */

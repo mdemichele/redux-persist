@@ -1,5 +1,5 @@
 /*
-  hardSet: 
+  hardSet:
     - hard set incoming state
 */
 
