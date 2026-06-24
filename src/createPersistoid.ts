@@ -9,9 +9,7 @@ export default function createPersistoid(config: PersistConfig<any>): Persistoid
   const whitelist: string[] | null = config.whitelist || null
   const transforms = config.transforms || []
   const throttle = config.throttle || 0
-  const storageKey = `${
-    config.keyPrefix !== undefined ? config.keyPrefix : KEY_PREFIX
-  }${config.key}`
+  const storageKey = `${config.keyPrefix !== undefined ? config.keyPrefix : KEY_PREFIX}${config.key}`
   const storage = config.storage
   let serialize: (x: any) => any
   if (config.serialize === false) {
@@ -32,7 +30,7 @@ export default function createPersistoid(config: PersistConfig<any>): Persistoid
 
   const update = (state: KeyAccessState) => {
     // add any changed keys to the queue
-    Object.keys(state).forEach(key => {
+    Object.keys(state).forEach((key) => {
       if (!passWhitelistBlacklist(key)) return // is keyspace ignored? noop
       if (lastState[key] === state[key]) return // value unchanged? noop
       if (keysToProcess.indexOf(key) !== -1) return // is key already queued? noop
@@ -41,7 +39,7 @@ export default function createPersistoid(config: PersistConfig<any>): Persistoid
 
     //if any key is missing in the new state which was present in the lastState,
     //add it for processing too
-    Object.keys(lastState).forEach(key => {
+    Object.keys(lastState).forEach((key) => {
       if (
         state[key] === undefined &&
         passWhitelistBlacklist(key) &&
@@ -79,10 +77,7 @@ export default function createPersistoid(config: PersistConfig<any>): Persistoid
       try {
         stagedState[key] = serialize(endState)
       } catch (err) {
-        console.error(
-          'redux-persist/createPersistoid: error serializing state',
-          err
-        )
+        console.error('redux-persist/createPersistoid: error serializing state', err)
       }
     } else {
       //if the endState is undefined, no need to persist the existing serialized content
@@ -96,20 +91,17 @@ export default function createPersistoid(config: PersistConfig<any>): Persistoid
 
   function writeStagedState() {
     // cleanup any removed keys just before write.
-    Object.keys(stagedState).forEach(key => {
+    Object.keys(stagedState).forEach((key) => {
       if (lastState[key] === undefined) {
         delete stagedState[key]
       }
     })
 
-    writePromise = storage
-      .setItem(storageKey, serialize(stagedState))
-      .catch(onWriteFail)
+    writePromise = storage.setItem(storageKey, serialize(stagedState)).catch(onWriteFail)
   }
 
   function passWhitelistBlacklist(key: string) {
-    if (whitelist && whitelist.indexOf(key) === -1 && key !== '_persist')
-      return false
+    if (whitelist && whitelist.indexOf(key) === -1 && key !== '_persist') return false
     if (blacklist && blacklist.indexOf(key) !== -1) return false
     return true
   }
@@ -117,10 +109,7 @@ export default function createPersistoid(config: PersistConfig<any>): Persistoid
   function onWriteFail(err: any) {
     if (writeFailHandler) writeFailHandler(err)
     if (err && process.env.NODE_ENV !== 'production') {
-      if (
-        err.name === 'QuotaExceededError' ||
-        err.name === 'NS_ERROR_DOM_QUOTA_REACHED'
-      ) {
+      if (err.name === 'QuotaExceededError' || err.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
         console.error(
           'redux-persist/createPersistoid: storage quota exceeded. ' +
             'State will not be persisted until storage is freed.',

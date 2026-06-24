@@ -2,13 +2,9 @@ import type { KeyAccessState, PersistConfig } from './types'
 
 import { KEY_PREFIX } from './constants'
 
-export default function getStoredState(
-  config: PersistConfig<any>
-): Promise<any | void> {
+export default function getStoredState(config: PersistConfig<any>): Promise<any | void> {
   const transforms = config.transforms || []
-  const storageKey = `${
-    config.keyPrefix !== undefined ? config.keyPrefix : KEY_PREFIX
-  }${config.key}`
+  const storageKey = `${config.keyPrefix !== undefined ? config.keyPrefix : KEY_PREFIX}${config.key}`
   const storage = config.storage
   const debug = config.debug
   let deserialize: (x: any) => any
@@ -25,7 +21,7 @@ export default function getStoredState(
       try {
         const state: KeyAccessState = {}
         const rawState = deserialize(serialized)
-        Object.keys(rawState).forEach(key => {
+        Object.keys(rawState).forEach((key) => {
           state[key] = transforms.reduceRight((subState, transformer) => {
             return transformer.out(subState, key, rawState)
           }, deserialize(rawState[key]))
@@ -33,10 +29,7 @@ export default function getStoredState(
         return state
       } catch (err) {
         if (process.env.NODE_ENV !== 'production' && debug)
-          console.log(
-            `redux-persist/getStoredState: Error restoring data ${serialized}`,
-            err
-          )
+          console.log(`redux-persist/getStoredState: Error restoring data ${serialized}`, err)
         throw err
       }
     }

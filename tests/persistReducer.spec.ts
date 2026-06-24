@@ -10,22 +10,22 @@ const reducer = () => ({})
 const config = {
   key: 'persist-reducer-test',
   version: 1,
-  storage: createMemoryStorage()
+  storage: createMemoryStorage(),
 }
 
-test('persistedReducer does not automatically set _persist state', t => {
+test('persistedReducer does not automatically set _persist state', (t) => {
   const persistedReducer = persistReducer(config, reducer)
-  const state = persistedReducer({}, {type: "UNDEFINED"})
+  const state = persistedReducer({}, { type: 'UNDEFINED' })
   console.log('state', state)
   t.is(undefined, state._persist)
 })
 
-test('persistedReducer does returns versioned, rehydrate tracked _persist state upon PERSIST', t => {
+test('persistedReducer does returns versioned, rehydrate tracked _persist state upon PERSIST', (t) => {
   const persistedReducer = persistReducer(config, reducer)
   const register = sinon.spy()
   const rehydrate = sinon.spy()
   const state = persistedReducer({}, { type: PERSIST, register, rehydrate })
-  t.deepEqual({ version: 1, rehydrated: false}, state._persist)
+  t.deepEqual({ version: 1, rehydrated: false }, state._persist)
 })
 
 test('persistedReducer calls register and rehydrate after PERSIST', async (t) => {
@@ -54,9 +54,7 @@ test('persistedReducer warns in dev when nested _persist is detected in state', 
     nested: { _persist: { version: 1, rehydrated: true }, value: 'foo' },
   }
   persistedReducer(stateWithNestedPersist as any, { type: 'SOME_ACTION' })
-  t.true(
-    consoleError.calledWithMatch(/nested _persist detected/)
-  )
+  t.true(consoleError.calledWithMatch(/nested _persist detected/))
   consoleError.restore()
 })
 
@@ -79,9 +77,7 @@ test('persistedReducer warns in dev when action fires before rehydration complet
     _persist: { version: 1, rehydrated: false },
   }
   persistedReducer(stateWithUnrehydratedPersist as any, { type: 'SOME_ACTION' })
-  t.true(
-    consoleWarn.calledWithMatch(/was dispatched for key.*before rehydration completed/)
-  )
+  t.true(consoleWarn.calledWithMatch(/was dispatched for key.*before rehydration completed/))
   consoleWarn.restore()
 })
 
