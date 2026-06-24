@@ -49,7 +49,7 @@ There are two required steps:
 
 import { createStore } from 'redux'
 import { persistStore, persistReducer } from '@mdemichele/redux-persist'
-import storage from '@mdemichele/redux-persist/lib/storage' // defaults to localStorage for web
+import storage from '@mdemichele/redux-persist/storage' // defaults to localStorage for web
 
 import rootReducer from './reducers'
 
@@ -69,7 +69,7 @@ export default () => {
 
 **`persistConfig`** requires two fields at minimum:
 - `key` — the storage key under which the entire persisted state is stored. Using `'root'` is conventional for top-level persistence.
-- `storage` — the storage engine. The default import (`@mdemichele/redux-persist/lib/storage`) uses `localStorage` on web. See [Storage Engines](#storage-engines) for other options.
+- `storage` — the storage engine. The default import (`@mdemichele/redux-persist/storage`) uses `localStorage` on web. See [Storage Engines](#storage-engines) for other options.
 
 **`persistReducer(config, reducer)`** returns an enhanced reducer that handles the `PERSIST`, `REHYDRATE`, and `PURGE` actions automatically. Swap it in place of your original root reducer — no other changes to your reducer logic are needed.
 
@@ -289,7 +289,7 @@ In the example below, the root config excludes the entire `auth` slice from its 
 ```js
 import { combineReducers } from ‘redux’
 import { persistReducer } from ‘@mdemichele/redux-persist’
-import storage from ‘@mdemichele/redux-persist/lib/storage’
+import storage from ‘@mdemichele/redux-persist/storage’
 
 import { authReducer, otherReducer } from ‘./reducers’
 
@@ -385,7 +385,7 @@ export default SetTransform
 Register transforms in your `persistConfig`:
 
 ```js
-import storage from ‘@mdemichele/redux-persist/lib/storage’
+import storage from ‘@mdemichele/redux-persist/storage’
 import { SetTransform } from ‘./transforms’
 
 const persistConfig = {
@@ -415,8 +415,8 @@ Multiple transforms can be provided — they are applied in array order on the w
 redux-persist ships with two built-in storage engines for web:
 
 ```js
-import storage from ‘@mdemichele/redux-persist/lib/storage’         // localStorage (default for web)
-import storageSession from ‘@mdemichele/redux-persist/lib/storage/session’ // sessionStorage
+import storage from ‘@mdemichele/redux-persist/storage’         // localStorage (default for web)
+import storageSession from ‘@mdemichele/redux-persist/storage/session’ // sessionStorage
 ```
 
 `sessionStorage` behaves like `localStorage` but is cleared when the browser tab is closed — useful for session-scoped state that should not survive past the current session.

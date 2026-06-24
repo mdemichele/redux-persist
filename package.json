@@ -18,6 +18,10 @@
     "./storage": {
       "import": "./es/storage/index.js",
       "require": "./lib/storage/index.js"
+    },
+    "./storage/session": {
+      "import": "./es/storage/session.js",
+      "require": "./lib/storage/session.js"
     }
   },
   "repository": {
