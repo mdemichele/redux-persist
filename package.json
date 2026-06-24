@@ -14,6 +14,10 @@
     "./integration/react": {
       "import": "./es/integration/react.js",
       "require": "./lib/integration/react.js"
+    },
+    "./storage": {
+      "import": "./es/storage/index.js",
+      "require": "./lib/storage/index.js"
     }
   },
   "repository": {
