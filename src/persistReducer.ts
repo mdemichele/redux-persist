@@ -1,6 +1,4 @@
-import {
-  Action, AnyAction, Reducer
-} from 'redux'
+import { Action, AnyAction, Reducer } from 'redux'
 
 import {
   FLUSH,
@@ -23,10 +21,13 @@ import createPersistoid from './createPersistoid'
 import defaultGetStoredState from './getStoredState'
 import purgeStoredState from './purgeStoredState'
 
-type PersistPartial = { _persist: PersistState } | any;
+type PersistPartial = { _persist: PersistState } | any
 const DEFAULT_TIMEOUT = 5000
 
-export default function persistReducer<S extends KeyAccessState, A extends Action>(
+export default function persistReducer<
+  S extends KeyAccessState,
+  A extends Action,
+>(
   config: PersistConfig<S>,
   baseReducer: Reducer<S, A>
 ): Reducer<S & PersistPartial, AnyAction> {
@@ -52,6 +53,7 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
   let _purge = false
   let _paused = true
   let _warnedAboutNestedPersist = false
+
   const conditionalUpdate = (state: any) => {
     // update the persistoid only if we are rehydrated and not paused
     if (state._persist.rehydrated && _persistoid && !_paused)
@@ -63,7 +65,11 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
     const { _persist, ...rest } = state || {}
     const restState: S = rest
 
-    if (process.env.NODE_ENV !== 'production' && !_warnedAboutNestedPersist && restState) {
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      !_warnedAboutNestedPersist &&
+      restState
+    ) {
       const nestedPersistKeys = Object.keys(restState).filter(
         (key: string) =>
           restState[key] &&
@@ -74,7 +80,7 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
         _warnedAboutNestedPersist = true
         console.error(
           `redux-persist: nested _persist detected in reducer "${config.key}" for state keys: [${nestedPersistKeys.join(', ')}]. ` +
-          'This likely means you are nesting persistReducer. Ensure whitelist/blacklist is configured correctly to avoid persisting internal _persist metadata.'
+            'This likely means you are nesting persistReducer. Ensure whitelist/blacklist is configured correctly to avoid persisting internal _persist metadata.'
         )
       }
     }
@@ -124,7 +130,7 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
         return {
           ...baseReducer(restState, action),
           _persist,
-        };
+        }
       }
 
       if (
@@ -138,14 +144,14 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
       action.register(config.key)
 
       getStoredState(config).then(
-        restoredState => {
+        (restoredState) => {
           if (restoredState) {
             const migrate = config.migrate || ((s) => Promise.resolve(s))
             migrate(restoredState as any, version).then(
-              migratedState => {
+              (migratedState) => {
                 _rehydrate(migratedState)
               },
-              migrateErr => {
+              (migrateErr) => {
                 if (process.env.NODE_ENV !== 'production' && migrateErr)
                   console.error('redux-persist: migration error', migrateErr)
                 _rehydrate(undefined, migrateErr)
@@ -155,7 +161,7 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
             _rehydrate(undefined)
           }
         },
-        err => {
+        (err) => {
           _rehydrate(undefined, err)
         }
       )
@@ -211,7 +217,7 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
     if (process.env.NODE_ENV !== 'production' && !_persist.rehydrated) {
       console.warn(
         `redux-persist: action "${action.type}" was dispatched for key "${config.key}" before rehydration completed. ` +
-        'This state change may be overwritten once rehydration finishes.'
+          'This state change may be overwritten once rehydration finishes.'
       )
     }
 
