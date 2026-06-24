@@ -5,6 +5,12 @@ The format is (mostly) based on [Keep a Changelog](https://keepachangelog.com/en
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [6.1.2] - 2026-06-23
+
+### Fixed
+- Corrected storage import paths throughout the README from `@mdemichele/redux-persist/lib/storage` to `@mdemichele/redux-persist/storage` and `lib/storage/session` to `storage/session`. The `exports` map in `package.json` blocks subpaths not explicitly listed, so the `lib/` variants never worked.
+- Added missing `"./storage/session"` entry to the `exports` map in `package.json` so `import storageSession from '@mdemichele/redux-persist/storage/session'` resolves correctly.
+
 ## [6.1.1] - 2026-06-18
 
 ### Fixed
