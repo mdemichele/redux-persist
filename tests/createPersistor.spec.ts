@@ -46,7 +46,7 @@ test.serial('it does not update unchanged state', (t) => {
   t.true(spy.withArgs('persist:persist-reducer-test', '{"b":"1"}').calledOnce)
 })
 
-test.serial('it updates removed keys', (t) => {
+test.serial('it updates removed keys - first test', (t) => {
   const { update } = createPersistoid(config)
   update({ a: undefined, b: 1 })
   clock.tick(1)
@@ -55,4 +55,27 @@ test.serial('it updates removed keys', (t) => {
   t.true(spy.calledTwice)
   t.true(spy.withArgs('persist:persist-reducer-test', '{"b":"1"}').calledOnce)
   t.true(spy.withArgs('persist:persist-reducer-test', '{}').calledOnce)
+})
+
+test.serial('it updates removed keys - second test', (t) => {
+  const { update } = createPersistoid(config)
+  update({ a: 1, b: undefined })
+  clock.tick(1)
+  update({ a: undefined, b: undefined })
+  clock.tick(1)
+  t.true(spy.calledTwice)
+  t.true(spy.withArgs('persist:persist-reducer-test', '{"a":"1"}').calledOnce)
+  t.true(spy.withArgs('persist:persist-reducer-test', '{}').calledOnce)
+})
+
+// TODO: Why does this fail?
+test.serial('it updates removed keys -  third test', (t) => {
+  const { update } = createPersistoid(config)
+  update({ a: 1, b: 2 })
+  clock.tick(1)
+  update({ b: 2 })
+  clock.tick(1)
+  t.true(spy.calledTwice)
+  t.true(spy.withArgs('persist:persist-reducer-test', '{"a":"1","b":"2"}').calledOnce)
+  t.true(spy.withArgs('persist:persist-reducer-test', '{"b":"2"}').calledOnce)
 })

@@ -1,4 +1,4 @@
-import type { Persistor, PersistorOptions, PersistorState } from './types'
+import type { Persistor, PersistorOptions, PersistorState, RehydrateAction } from './types'
 
 import { AnyAction, createStore, Store } from 'redux'
 import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE } from './constants'
@@ -42,11 +42,8 @@ export default function persistStore(store: Store, options?: PersistorOptions, c
   }
   let boostrappedCb = cb || false
 
-  const _pStore = createStore(
-    persistorReducer,
-    initialState,
-    options && options.enhancer ? options.enhancer : undefined
-  )
+  const _pStore: Store<PersistorState, AnyAction> = createStore(persistorReducer, initialState, options && options.enhancer ? options.enhancer : undefined)
+
   const register = (key: string) => {
     _pStore.dispatch({
       type: REGISTER,
@@ -55,7 +52,7 @@ export default function persistStore(store: Store, options?: PersistorOptions, c
   }
 
   const rehydrate = (key: string, payload: Record<string, unknown>, err: any) => {
-    const rehydrateAction = {
+    const rehydrateAction: RehydrateAction = {
       type: REHYDRATE,
       payload,
       err,
