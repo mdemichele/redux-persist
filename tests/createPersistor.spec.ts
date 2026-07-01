@@ -78,3 +78,12 @@ test.serial('it updates removed keys -  third test', (t) => {
   t.true(spy.withArgs('persist:persist-reducer-test', '{"a":"1","b":"2"}').calledOnce)
   t.true(spy.withArgs('persist:persist-reducer-test', '{"b":"2"}').calledOnce)
 })
+
+test.serial('flush() immediately writes pending state without waiting for the throttle timer', async (t) => {
+  const { flush, update } = createPersistoid(config)
+  update({ a: 1 })
+  // Do not tick the clock — flush must bypass the throttle and write immediately
+  await flush()
+  t.true(spy.calledOnce)
+  t.true(spy.withArgs('persist:persist-reducer-test', '{"a":"1"}').calledOnce)
+})
