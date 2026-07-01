@@ -68,7 +68,6 @@ test.serial('it updates removed keys - second test', (t) => {
   t.true(spy.withArgs('persist:persist-reducer-test', '{}').calledOnce)
 })
 
-// TODO: Why does this fail?
 test.serial('it updates removed keys -  third test', (t) => {
   const { update } = createPersistoid(config)
   update({ a: 1, b: 2 })
