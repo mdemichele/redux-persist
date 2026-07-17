@@ -87,3 +87,31 @@ test.serial('flush() immediately writes pending state without waiting for the th
   t.true(spy.calledOnce)
   t.true(spy.withArgs('persist:persist-reducer-test', '{"a":"1"}').calledOnce)
 })
+
+test.serial('writeStagedState routes a synchronous serialization error to writeFailHandler instead of throwing', (t) => {
+  const rangeError = new RangeError('String length exceeds limit')
+  const writeFailHandler = sinon.spy()
+
+  const throwingConfig = {
+    key: 'persist-reducer-test',
+    version: 1,
+    storage: memoryStorage,
+    serialize: () => {
+      throw rangeError
+    },
+    writeFailHandler,
+  }
+
+  const { update, flush } = createPersistoid(throwingConfig)
+  update({ a: 1 })
+
+  // Should not throw — the RangeError must be caught and routed to writeFailHandler
+  t.notThrows(() => flush())
+
+  // writeFailHandler receives the error instead of it propagating
+  t.true(writeFailHandler.calledOnce)
+  t.is(writeFailHandler.firstCall.args[0], rangeError)
+
+  // storage.setItem must never be called when serialization fails
+  t.false(spy.called)
+})
