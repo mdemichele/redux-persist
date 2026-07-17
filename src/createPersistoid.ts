@@ -97,6 +97,14 @@ export default function createPersistoid(config: PersistConfig<any>): Persistoid
       }
     })
 
+    let serialized
+    try {
+      serialized = serialize(stagedState)
+    } catch (err) {
+      onWriteFail(err)
+      return
+    }
+
     writePromise = storage.setItem(storageKey, serialize(stagedState)).catch(onWriteFail)
   }
 
