@@ -1,6 +1,7 @@
 import type { Storage } from '../types'
 
 const noop = (): void => undefined
+
 const noopStorage = {
   getItem: noop,
   setItem: noop,
@@ -9,7 +10,7 @@ const noopStorage = {
   getAllKeys: noop,
 }
 
-function hasStorage(storageType: string) {
+function hasStorage(storageType: string): boolean {
   if (typeof self !== 'object' || !(storageType in self)) {
     return false
   }
