@@ -105,7 +105,7 @@ export default function createPersistoid(config: PersistConfig<any>): Persistoid
       return
     }
 
-    writePromise = storage.setItem(storageKey, serialize(stagedState)).catch(onWriteFail)
+    writePromise = storage.setItem(storageKey, serialized).catch(onWriteFail)
   }
 
   function passWhitelistBlacklist(key: string) {
