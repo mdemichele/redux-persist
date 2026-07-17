@@ -1,6 +1,6 @@
 import type { Storage } from '../types'
 
-const noop = (): void => undefined
+const noop = (): Promise<null> => Promise.resolve(null)
 
 const noopStorage = {
   getItem: noop,
