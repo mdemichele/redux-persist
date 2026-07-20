@@ -50,12 +50,15 @@ export default function createPersistoid(config: PersistConfig<any>): Persistoid
       }
     })
 
-    // start the time iterator if not running (read: throttle)
-    if (timeIterator === null) {
+    lastState = state
+
+    if (!throttle) {
+      while (keysToProcess.length) {
+        processNextKey()
+      }
+    } else if (timeIterator === null) {
       timeIterator = setInterval(processNextKey, throttle)
     }
-
-    lastState = state
   }
 
   function processNextKey() {
