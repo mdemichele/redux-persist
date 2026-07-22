@@ -25,7 +25,7 @@ export default function createPersistoid(config: PersistConfig<any>): Persistoid
   let lastState: KeyAccessState = {}
   const stagedState: KeyAccessState = {}
   const keysToProcess: string[] = []
-  let timeIterator: any = null
+  let writeTimeout: any = null
   let writePromise: Promise<any> | null = null
 
   const update = (state: KeyAccessState) => {
@@ -56,15 +56,13 @@ export default function createPersistoid(config: PersistConfig<any>): Persistoid
       while (keysToProcess.length) {
         processNextKey()
       }
-    } else if (timeIterator === null) {
-      timeIterator = setInterval(processNextKey, throttle)
+    } else if (writeTimeout === null) {
+      writeTimeout = setTimeout(flush, throttle)
     }
   }
 
   function processNextKey() {
     if (keysToProcess.length === 0) {
-      if (timeIterator) clearInterval(timeIterator)
-      timeIterator = null
       return
     }
 
@@ -138,9 +136,13 @@ export default function createPersistoid(config: PersistConfig<any>): Persistoid
     }
   }
 
-  const flush = () => {
+  function flush() {
     while (keysToProcess.length !== 0) {
       processNextKey()
+    }
+    if (writeTimeout) {
+      clearTimeout(writeTimeout)
+      writeTimeout = null
     }
     return writePromise || Promise.resolve()
   }
