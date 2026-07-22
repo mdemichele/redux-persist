@@ -110,7 +110,7 @@ node -e "const { persistReducer, persistStore } = require('@mdemichele/redux-per
 
 **Test ESM (`import`):**
 ```bash
-node --input-type=module <<< "import { persistReducer, persistStore } from '@mdemichele/redux-persist/es/index.js'; console.log(typeof persistReducer, typeof persistStore)"
+node --input-type=module <<< "import { persistReducer, persistStore } from '@mdemichele/redux-persist'; console.log(typeof persistReducer, typeof persistStore)"
 ```
 
 Both should print `function function`.
