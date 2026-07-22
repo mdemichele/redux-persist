@@ -97,7 +97,7 @@ export default function createPersistoid(config: PersistConfig<any>): Persistoid
       }
     })
 
-    let serialized
+    let serialized: any
     try {
       serialized = serialize(stagedState)
     } catch (err) {
