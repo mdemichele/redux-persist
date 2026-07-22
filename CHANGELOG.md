@@ -5,6 +5,13 @@ The format is (mostly) based on [Keep a Changelog](https://keepachangelog.com/en
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [6.1.3] - 2026-07-21
+
+### Fixed
+- `noopStorage` methods now return `Promise.resolve(null)` instead of `undefined`. Callers in `getStoredState` and `createPersistoid` chain `.then()`/`.catch()` on storage return values, so the previous `undefined` return caused "Cannot read property 'then' of undefined" crashes in SSR and strict private-browsing environments where `localStorage` is unavailable. ([#56](https://github.com/mdemichele/redux-persist/pull/56))
+- `writeStagedState` in `createPersistoid` now wraps `serialize()` in a `try/catch`, routing synchronous serialization errors (e.g., `RangeError` from circular references or oversized payloads) to `writeFailHandler` instead of crashing as unhandled exceptions. ([#55](https://github.com/mdemichele/redux-persist/pull/55))
+- `createPersistoid` now uses a `setTimeout`-based flush instead of `setInterval` for throttled writes, ensuring all pending key updates are batched into a single write per throttle window rather than firing on a fixed interval regardless of state changes. When `throttle` is `0`, all keys are now processed synchronously. ([#58](https://github.com/mdemichele/redux-persist/pull/58))
+
 ## [6.1.2] - 2026-06-23
 
 ### Fixed
