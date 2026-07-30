@@ -12,6 +12,9 @@ export default function getStoredState(config: PersistConfig<any>): Promise<any 
     deserialize = (x: any) => x
   } else if (typeof config.deserialize === 'function') {
     deserialize = config.deserialize
+  } else if (config.serialize === false) {
+    // serialize:false means data was stored raw — don't JSON.parse it back
+    deserialize = (x: any) => x
   } else {
     deserialize = defaultDeserialize
   }
