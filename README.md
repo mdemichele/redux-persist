@@ -149,6 +149,7 @@ The `Persistor` is a small Redux store that drives the persistence lifecycle. It
 - **`.pause()`** — pauses persistence. State changes will not be written to storage while paused.
 - **`.flush()`** — immediately writes all pending state to storage and returns a promise. Useful before app close or logout.
 - **`.purge()`** — removes all persisted state from storage and returns a promise. Note: this only clears storage — it does not reset the in-memory Redux state.
+- **`.resync()`** — overrides the current Redux state with the value in storage and returns a promise. Useful when storage may have been updated externally, e.g. when a user re-focuses a tab that shares localStorage with another tab.
 
 ## State Reconciler
 

@@ -1,6 +1,6 @@
 import { Action } from 'redux'
 
-import { FLUSH, PAUSE, PERSIST, PURGE, REHYDRATE, DEFAULT_VERSION } from './constants'
+import { FLUSH, PAUSE, PERSIST, PURGE, REHYDRATE, RESYNC, DEFAULT_VERSION } from './constants'
 
 import type { PersistConfig, PersistState, Persistoid, KeyAccessState } from './types'
 
@@ -136,6 +136,19 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
       return {
         ...baseReducer(restState, action),
         _persist,
+      }
+    } else if (action.type === RESYNC) {
+      getStoredState(config)
+        .then(
+          restoredState =>
+            action.rehydrate(config.key, restoredState, undefined),
+          err => action.rehydrate(config.key, undefined, err)
+        )
+        .then(() => action.result())
+
+      return {
+        ...baseReducer(restState, action),
+        _persist: { version, rehydrated: false },
       }
     } else if (action.type === FLUSH) {
       action.result(_persistoid && _persistoid.flush())
