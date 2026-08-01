@@ -2,6 +2,7 @@ import test from 'ava'
 import sinon from 'sinon'
 import createMemoryStorage from './utils/createMemoryStorage'
 import createPersistoid from '../src/createPersistoid'
+import getStoredState from '../src/getStoredState'
 const memoryStorage = createMemoryStorage()
 
 const config = {
@@ -86,6 +87,27 @@ test.serial('flush() immediately writes pending state without waiting for the th
   await flush()
   t.true(spy.calledOnce)
   t.true(spy.withArgs('persist:persist-reducer-test', '{"a":"1"}').calledOnce)
+})
+
+test('when serialize:false is set without an explicit deserialize, getStoredState should not JSON.parse the raw data', async (t) => {
+  const storage = createMemoryStorage()
+  const config = {
+    key: 'serialize-false-test',
+    storage,
+    serialize: false as false,
+  }
+
+  const { update, flush } = createPersistoid(config)
+  update({ counter: 42, name: 'test' })
+  await flush()
+
+  // Without the fix, getStoredState calls JSON.parse on a raw JS object,
+  // producing JSON.parse("[object Object]") → SyntaxError
+  let state: any
+  await t.notThrowsAsync(async () => {
+    state = await getStoredState(config)
+  })
+  t.deepEqual(state, { counter: 42, name: 'test' })
 })
 
 test.serial('writeStagedState routes a synchronous serialization error to writeFailHandler instead of throwing', (t) => {
