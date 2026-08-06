@@ -54,7 +54,12 @@ export default function createFilesystemStorage(ReactNativeBlobUtil: any): Files
       ReactNativeBlobUtil.fs
         .writeFile(pathForKey(key), value, options.encoding)
         .then(() => callback && callback())
-        .catch((error: Error) => callback && callback(error)),
+        .catch((error: Error) => {
+          if (!callback) {
+            throw error
+          }
+          callback(error)
+        }),
 
     getItem: onStorageReady(
       (key: string, callback?: (error?: Error | null, result?: string | null) => void) => {
@@ -117,17 +122,17 @@ export default function createFilesystemStorage(ReactNativeBlobUtil: any): Files
             .ls(options.storagePath)
             .then((files: string[]) => files.map((file) => options.fromFileName(file)))
             .then((files: string[]) => {
-              callback && callback(null, files)
               if (!callback) {
                 return files
               }
+              callback(null, files)
             })
         )
         .catch((error: Error) => {
-          callback && callback(error)
           if (!callback) {
             throw error
           }
+          callback(error)
         }),
 
     clear: (callback?: (error?: Error | null, allKeysCleared?: boolean) => void) =>
@@ -151,13 +156,13 @@ export default function createFilesystemStorage(ReactNativeBlobUtil: any): Files
           return true
         }
 
-        callback && callback(null, false)
+        callback?.(null, false)
         return false
       }).catch((error: Error) => {
-        callback && callback(error)
         if (!callback) {
           throw error
         }
+        callback(error)
       }),
   }
 
