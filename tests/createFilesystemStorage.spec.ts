@@ -61,6 +61,14 @@ test('setItem writes a value and getItem reads it back', async t => {
   t.is(result, 'my-value')
 })
 
+test('keys containing dashes survive a round-trip from setItem to getItem', async t => {
+  const blob = createMockBlobUtil()
+  const storage = createFilesystemStorage(blob)
+  await storage.setItem('persist:user-profile', 'data')
+  t.deepEqual(await storage.getAllKeys(), ['persist:user-profile'])
+  t.is(await storage.getItem('persist:user-profile'), 'data')
+})
+
 test('getItem returns null for a key that does not exist', async t => {
   const blob = createMockBlobUtil()
   const storage = createFilesystemStorage(blob)

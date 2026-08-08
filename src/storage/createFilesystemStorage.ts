@@ -35,8 +35,8 @@ export default function createFilesystemStorage(ReactNativeBlobUtil: any): Files
   let options: FilesystemStorageOptions = {
     storagePath: defaultStoragePath,
     encoding: 'utf8',
-    toFileName: (name: string) => name.split(':').join('-'),
-    fromFileName: (name: string) => name.split('-').join(':'),
+    toFileName: (name: string) => encodeURIComponent(name),
+    fromFileName: (name: string) => decodeURIComponent(name),
   }
 
   const pathForKey = (key: string) => `${options.storagePath}/${options.toFileName(key)}`
@@ -63,7 +63,7 @@ export default function createFilesystemStorage(ReactNativeBlobUtil: any): Files
 
     getItem: onStorageReady(
       (key: string, callback?: (error?: Error | null, result?: string | null) => void) => {
-        const filePath = pathForKey(options.toFileName(key))
+        const filePath = pathForKey(key)
 
         return ReactNativeBlobUtil.fs
           .readFile(filePath, options.encoding)
@@ -88,7 +88,7 @@ export default function createFilesystemStorage(ReactNativeBlobUtil: any): Files
     ),
 
     removeItem: (key: string, callback?: (error?: Error | null) => void) => {
-      const filePath = pathForKey(options.toFileName(key))
+      const filePath = pathForKey(key)
 
       const handleError = (err: Error) => {
         if (!callback) {
