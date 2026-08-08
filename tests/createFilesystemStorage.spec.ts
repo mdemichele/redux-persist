@@ -69,6 +69,15 @@ test('keys containing dashes survive a round-trip from setItem to getItem', asyn
   t.is(await storage.getItem('persist:user-profile'), 'data')
 })
 
+test('custom toFileName is applied exactly once', async t => {
+  const blob = createMockBlobUtil()
+  const storage = createFilesystemStorage(blob)
+  await storage.setItem('persist:root', 'data')
+  t.is(await storage.getItem('persist:root'), 'data')
+  await storage.removeItem('persist:root')
+  t.is(await storage.getItem('persist:root'), null)
+})
+
 test('getItem returns null for a key that does not exist', async t => {
   const blob = createMockBlobUtil()
   const storage = createFilesystemStorage(blob)
