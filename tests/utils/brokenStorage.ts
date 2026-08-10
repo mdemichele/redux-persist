@@ -11,5 +11,5 @@ export default {
   getAllKeys(): Promise<void> {
     return new Promise<void>(() => {})
   },
-  keys: []
+  keys: [],
 }

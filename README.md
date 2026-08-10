@@ -11,11 +11,11 @@ Beyond basic persistence, the library also handles state shape migrations as you
 
 For a deeper look at the problem this project solves and why it was built, see [docs/project-purpose.md](./docs/project-purpose.md).
 
-> **Note on versioning:** The initial `v0.0.1` npm release was a proof-of-concept publish to establish the `@mdemichele/redux-persist` package name. The next release will be `v6.1.0`, aligning with the actual version of the codebase (the TypeScript fork) and providing a meaningful starting point for future semantic versioning.
+> **Note on versioning:** The initial `v0.0.1` npm release was a proof-of-concept publish to establish the `@mdemichele/redux-persist` package name. The first real release was `v6.1.0`, aligning with the actual version of the codebase (the TypeScript fork) and providing a meaningful starting point for future semantic versioning.
 
 ## Project Timeline
 
-- June 9, 2026: v0.0.1 released to npm as `@mdemichele/redux-persist`
+- June 9, 2026: v0.0.1 released to npm as `@mdemichele/redux-persist`. Following a regular release cadence from here on.
 - February 16, 2025: New Fork Created. I'm hoping we can revive this project and get it actively maintained again.
 - October 15th, 2021: Move to TypeScript (Thanks [@smellman](https://github.com/smellman))
   - As part of the work to upgrade the infrastructure used to build redux-persist, we're moving from Flow to TypeScript.
@@ -37,7 +37,7 @@ Usage Examples:
 
 #### Basic Usage
 
-> For a working reference implementation, see the [redux-persist-test-app](../redux-persist-test-app) example app.
+> For a working reference implementation, see the [redux-persist-test-app](https://github.com/mdemichele/redux-persist-test-app) example app.
 
 There are two required steps:
 
@@ -49,7 +49,7 @@ There are two required steps:
 
 import { createStore } from 'redux'
 import { persistStore, persistReducer } from '@mdemichele/redux-persist'
-import storage from '@mdemichele/redux-persist/lib/storage' // defaults to localStorage for web
+import storage from '@mdemichele/redux-persist/storage' // defaults to localStorage for web
 
 import rootReducer from './reducers'
 
@@ -69,7 +69,7 @@ export default () => {
 
 **`persistConfig`** requires two fields at minimum:
 - `key` — the storage key under which the entire persisted state is stored. Using `'root'` is conventional for top-level persistence.
-- `storage` — the storage engine. The default import (`@mdemichele/redux-persist/lib/storage`) uses `localStorage` on web. See [Storage Engines](#storage-engines) for other options.
+- `storage` — the storage engine. The default import (`@mdemichele/redux-persist/storage`) uses `localStorage` on web. See [Storage Engines](#storage-engines) for other options.
 
 **`persistReducer(config, reducer)`** returns an enhanced reducer that handles the `PERSIST`, `REHYDRATE`, and `PURGE` actions automatically. Swap it in place of your original root reducer — no other changes to your reducer logic are needed.
 
@@ -289,7 +289,7 @@ In the example below, the root config excludes the entire `auth` slice from its 
 ```js
 import { combineReducers } from ‘redux’
 import { persistReducer } from ‘@mdemichele/redux-persist’
-import storage from ‘@mdemichele/redux-persist/lib/storage’
+import storage from ‘@mdemichele/redux-persist/storage’
 
 import { authReducer, otherReducer } from ‘./reducers’
 
@@ -385,7 +385,7 @@ export default SetTransform
 Register transforms in your `persistConfig`:
 
 ```js
-import storage from ‘@mdemichele/redux-persist/lib/storage’
+import storage from ‘@mdemichele/redux-persist/storage’
 import { SetTransform } from ‘./transforms’
 
 const persistConfig = {
@@ -415,8 +415,8 @@ Multiple transforms can be provided — they are applied in array order on the w
 redux-persist ships with two built-in storage engines for web:
 
 ```js
-import storage from ‘@mdemichele/redux-persist/lib/storage’         // localStorage (default for web)
-import storageSession from ‘@mdemichele/redux-persist/lib/storage/session’ // sessionStorage
+import storage from ‘@mdemichele/redux-persist/storage’         // localStorage (default for web)
+import storageSession from ‘@mdemichele/redux-persist/storage/session’ // sessionStorage
 ```
 
 `sessionStorage` behaves like `localStorage` but is cleared when the browser tab is closed — useful for session-scoped state that should not survive past the current session.
@@ -435,30 +435,23 @@ const customStorage = {
 
 **Community storage engines:**
 
-| Engine | Environment | Description |
-|---|---|---|
-| [redux-persist-cookie-storage](https://github.com/abersager/redux-persist-cookie-storage) | Web / Node.js | Cookie-based storage, works universally |
-| [redux-persist-indexeddb-storage](https://github.com/machester4/redux-persist-indexeddb-storage) | Web | IndexedDB via localForage — recommended for large state |
-| [redux-persist-webextension-storage](https://github.com/ssorallen/redux-persist-webextension-storage) | Chrome / Firefox | Browser extension storage API |
-| [redux-persist-node-storage](https://github.com/pellejacobs/redux-persist-node-storage) | Node.js | File-based storage for Node environments |
-| [redux-persist-expo-filesystem](https://github.com/t73liu/redux-persist-expo-filesystem) | React Native (Expo) | Filesystem storage — no linking or ejecting required |
-| [redux-persist-expo-securestore](https://github.com/Cretezy/redux-persist-expo-securestore) | React Native (Expo) | Expo SecureStore for sensitive data |
-| [redux-persist-sensitive-storage](https://github.com/CodingZeal/redux-persist-sensitive-storage) | React Native | Sensitive data via react-native-sensitive-info |
-| [redux-persist-fs-storage](https://github.com/leethree/redux-persist-fs-storage) | React Native | react-native-fs engine |
-| [redux-persist-filesystem-storage](https://github.com/robwalkerco/redux-persist-filesystem-storage) | React Native (Android) | Mitigates Android storage size limitations |
-| [redux-persist-pouchdb](https://github.com/yanick/redux-persist-pouchdb) | Web / Node.js | PouchDB storage engine |
-| [redux-persist-weapp-storage](https://github.com/cuijiemmx/redux-casa/tree/master/packages/redux-persist-weapp-storage) | WeChat Mini Program | Compatible with wepy |
-| [@bankify/redux-persist-realm](https://github.com/bankifyio/redux-persist-realm) | React Native | Realm database (requires Realm installation) |
+| Engine | Environment | Description | Status |
+|---|---|---|---|
+| [@react-native-async-storage/async-storage](https://github.com/react-native-async-storage/async-storage) | React Native | Official community AsyncStorage — works directly as a storage engine | Active |
+| [react-native-mmkv](https://github.com/mrousavy/react-native-mmkv) | React Native | High-performance key-value storage — requires a [thin custom adapter](https://github.com/mrousavy/react-native-mmkv#redux-persist) | Active |
+| [redux-persist-expo-filesystem](https://github.com/t73liu/redux-persist-expo-filesystem) | React Native (Expo) | Filesystem storage — no linking or ejecting required | Active |
+| [redux-persist-expo-securestore](https://github.com/Cretezy/redux-persist-expo-securestore) | React Native (Expo) | Expo SecureStore for sensitive data | Active |
+| [redux-persist-filesystem-storage](https://github.com/robwalkerco/redux-persist-filesystem-storage) | React Native (Android) | Mitigates Android storage size limitations | Active |
+| [redux-persist-webextension-storage](https://github.com/ssorallen/redux-persist-webextension-storage) | Chrome / Firefox | Browser extension storage API | Unmaintained |
+| [redux-persist-cookie-storage](https://github.com/abersager/redux-persist-cookie-storage) | Web / Node.js | Cookie-based storage, works universally | Unmaintained |
+| [redux-persist-indexeddb-storage](https://github.com/machester4/redux-persist-indexeddb-storage) | Web | IndexedDB via localForage — recommended for large state | Unmaintained |
+| [redux-persist-node-storage](https://github.com/pellejacobs/redux-persist-node-storage) | Node.js | File-based storage for Node environments | Unmaintained |
+| [redux-persist-pouchdb](https://github.com/yanick/redux-persist-pouchdb) | Web / Node.js | PouchDB storage engine | Unmaintained |
+| [redux-persist-fs-storage](https://github.com/leethree/redux-persist-fs-storage) | React Native | react-native-fs engine | Unmaintained |
+| [redux-persist-weapp-storage](https://github.com/cuijiemmx/redux-casa/tree/master/packages/redux-persist-weapp-storage) | WeChat Mini Program | Compatible with wepy | Unmaintained |
+| [redux-persist-sensitive-storage](https://github.com/CodingZeal/redux-persist-sensitive-storage) | React Native | Sensitive data via react-native-sensitive-info | Archived |
+| [@bankify/redux-persist-realm](https://github.com/bankifyio/redux-persist-realm) | React Native | Realm database (requires Realm installation) | Archived |
 
-## Roadmap
-
-### v6.1.0 — Target: June 30, 2026
-
-The next release will be `v6.1.0`, published to npm as `@mdemichele/redux-persist`. This version brings the TypeScript migration and GitHub Actions CI that have been in the codebase since 2021 but were never formally released as an npm package.
-
-No breaking changes are planned. The upgrade from `v0.0.1` is a drop-in replacement.
-
-If you have a bug fix or feature you would like to see included in `v6.1.0`, please [open an issue](https://github.com/mdemichele/redux-persist/issues) or submit a pull request before the release date.
 
 ## Community & Contributing
 

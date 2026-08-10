@@ -1,9 +1,40 @@
 # Changelog
-All notable changes to this project (after v6.1.0) should be documented in this file.
+All notable changes to this project should be documented in this file.
 
 The format is (mostly) based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [6.1.3] - 2026-07-21
+
+### Fixed
+- `noopStorage` methods now return `Promise.resolve(null)` instead of `undefined`. Callers in `getStoredState` and `createPersistoid` chain `.then()`/`.catch()` on storage return values, so the previous `undefined` return caused "Cannot read property 'then' of undefined" crashes in SSR and strict private-browsing environments where `localStorage` is unavailable. ([#56](https://github.com/mdemichele/redux-persist/pull/56))
+- `writeStagedState` in `createPersistoid` now wraps `serialize()` in a `try/catch`, routing synchronous serialization errors (e.g., `RangeError` from circular references or oversized payloads) to `writeFailHandler` instead of crashing as unhandled exceptions. ([#55](https://github.com/mdemichele/redux-persist/pull/55))
+- `createPersistoid` now uses a `setTimeout`-based flush instead of `setInterval` for throttled writes, ensuring all pending key updates are batched into a single write per throttle window rather than firing on a fixed interval regardless of state changes. When `throttle` is `0`, all keys are now processed synchronously. ([#58](https://github.com/mdemichele/redux-persist/pull/58))
+
+## [6.1.2] - 2026-06-23
+
+### Fixed
+- Corrected storage import paths throughout the README from `@mdemichele/redux-persist/lib/storage` to `@mdemichele/redux-persist/storage` and `lib/storage/session` to `storage/session`. The `exports` map in `package.json` blocks subpaths not explicitly listed, so the `lib/` variants never worked.
+- Added missing `"./storage/session"` entry to the `exports` map in `package.json` so `import storageSession from '@mdemichele/redux-persist/storage/session'` resolves correctly.
+
+## [6.1.1] - 2026-06-18
+
+### Fixed
+- `require('@mdemichele/redux-persist')` now works in Node.js CJS environments. The root `"type":"module"` was causing Node to treat the CommonJS `lib/` output as ESM; the CJS build now writes a `lib/package.json` with `{"type":"commonjs"}` to override this in that subdirectory.
+- `import from '@mdemichele/redux-persist'` now works in Node.js ESM environments. The ESM `es/` build now patches relative import paths to include `.js` extensions (required by Node's ESM resolver) and writes an `es/package.json` with `{"type":"module"}` so Node correctly identifies the files as ES modules.
+- Added a proper `"exports"` field to `package.json` mapping `"require"` to `lib/` and `"import"` to `es/`, covering both the main entry point and `./integration/react`.
+
+## [6.1.0] - 2026-06-18
+
+### Added
+- Dev-mode validation in `persistReducer` that warns when nested `_persist` is detected in state, guarding against accidentally persisting a `persistReducer`-wrapped slice inside another `persistReducer`
+- Dev-mode validation in `persistReducer` that warns when actions are dispatched before rehydration completes, helping surface premature-dispatch bugs
+- Release checklist (`docs/release-checklist.md`) documenting the full npm publish process
+
+### Changed
+- Expanded README with detailed API reference, usage examples, state reconciler explanations, and a Roadmap section
+- Clarified versioning history in README and CHANGELOG (0.0.1 placeholder → 6.1.0 proper release)
 
 ## [0.0.1] - 2026-06-09
 

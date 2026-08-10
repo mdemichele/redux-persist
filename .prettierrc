@@ -1,4 +1,5 @@
-parser: "typescript"
+parser: 'typescript'
 semi: false
 trailingComma: es5
 singleQuote: true
+printWidth: 120

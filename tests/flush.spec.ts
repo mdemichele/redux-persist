@@ -9,9 +9,9 @@ import createMemoryStorage from './utils/createMemoryStorage'
 const INCREMENT = 'INCREMENT'
 
 interface StateObject {
-  [key: string]: any;
+  [key: string]: any
 }
-const initialState: StateObject = { a: 0, b: 10, c: 100}
+const initialState: StateObject = { a: 0, b: 10, c: 100 }
 const reducer = (state = initialState, { type }: { type: any }) => {
   console.log('action', type)
   if (type === INCREMENT) {
@@ -34,7 +34,7 @@ const config = {
   throttle: 1000,
 }
 
-test('state before flush is not updated, after flush is', t => {
+test('pending state is not persisted before flush, but is persisted after flush', (t) => {
   return new Promise((resolve) => {
     const rootReducer = persistReducer(config, reducer)
     const store = createStore(rootReducer)
@@ -45,7 +45,8 @@ test('state before flush is not updated, after flush is', t => {
       t.not(storedPreFlush && storedPreFlush.c, state.c)
       await persistor.flush()
       const storedPostFlush = await getStoredState(config)
-      resolve(t.is(storedPostFlush && storedPostFlush.c, state.c))
+      t.is(storedPostFlush && storedPostFlush.c, state.c)
+      resolve()
     })
   })
 })

@@ -1,39 +1,25 @@
-import {
-  Action, AnyAction, Reducer
-} from 'redux'
+import { Action } from 'redux'
 
-import {
-  FLUSH,
-  PAUSE,
-  PERSIST,
-  PURGE,
-  REHYDRATE,
-  DEFAULT_VERSION,
-} from './constants'
+import { FLUSH, PAUSE, PERSIST, PURGE, REHYDRATE, DEFAULT_VERSION } from './constants'
 
-import type {
-  PersistConfig,
-  PersistState,
-  Persistoid,
-  KeyAccessState,
-} from './types'
+import type { PersistConfig, PersistState, Persistoid, KeyAccessState } from './types'
 
 import autoMergeLevel1 from './stateReconciler/autoMergeLevel1'
 import createPersistoid from './createPersistoid'
 import defaultGetStoredState from './getStoredState'
 import purgeStoredState from './purgeStoredState'
 
-type PersistPartial = { _persist: PersistState } | any;
+type ReducerWithPreloadedState<S, A extends Action, P = S> = (
+  state: S | P | undefined,
+  action: A
+) => S
+
 const DEFAULT_TIMEOUT = 5000
-/*
-  @TODO add validation / handling for:
-  - persisting a reducer which has nested _persist
-  - handling actions that fire before reydrate is called
-*/
-export default function persistReducer<S extends KeyAccessState, A extends Action>(
+
+export default function persistReducer<S extends KeyAccessState, A extends Action, P = S>(
   config: PersistConfig<S>,
-  baseReducer: Reducer<S, A>
-): Reducer<S & PersistPartial, AnyAction> {
+  baseReducer: ReducerWithPreloadedState<S, A, P>
+): ReducerWithPreloadedState<S & { _persist: PersistState }, A, P & { _persist?: PersistState }> {
   if (process.env.NODE_ENV !== 'production') {
     if (!config) throw new Error('config is required for persistReducer')
     if (!config.key) throw new Error('key is required in persistor config')
@@ -43,22 +29,18 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
       )
   }
 
-  const version =
-    config.version !== undefined ? config.version : DEFAULT_VERSION
-  const stateReconciler =
-    config.stateReconciler === undefined
-      ? autoMergeLevel1
-      : config.stateReconciler
+  const version = config.version !== undefined ? config.version : DEFAULT_VERSION
+  const stateReconciler = config.stateReconciler === undefined ? autoMergeLevel1 : config.stateReconciler
   const getStoredState = config.getStoredState || defaultGetStoredState
-  const timeout =
-    config.timeout !== undefined ? config.timeout : DEFAULT_TIMEOUT
+  const timeout = config.timeout !== undefined ? config.timeout : DEFAULT_TIMEOUT
   let _persistoid: Persistoid | null = null
   let _purge = false
   let _paused = true
+  let _warnedAboutNestedPersist = false
+
   const conditionalUpdate = (state: any) => {
     // update the persistoid only if we are rehydrated and not paused
-    if (state._persist.rehydrated && _persistoid && !_paused)
-      _persistoid.update(state)
+    if (state._persist.rehydrated && _persistoid && !_paused) _persistoid.update(state)
     return state
   }
 
@@ -66,18 +48,25 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
     const { _persist, ...rest } = state || {}
     const restState: S = rest
 
+    if (process.env.NODE_ENV !== 'production' && !_warnedAboutNestedPersist && restState) {
+      const nestedPersistKeys = Object.keys(restState).filter(
+        (key: string) => restState[key] && typeof restState[key] === 'object' && '_persist' in restState[key]
+      )
+      if (nestedPersistKeys.length > 0) {
+        _warnedAboutNestedPersist = true
+        console.error(
+          `redux-persist: nested _persist detected in reducer "${config.key}" for state keys: [${nestedPersistKeys.join(', ')}]. ` +
+            'This likely means you are nesting persistReducer. Ensure whitelist/blacklist is configured correctly to avoid persisting internal _persist metadata.'
+        )
+      }
+    }
+
     if (action.type === PERSIST) {
       let _sealed = false
       const _rehydrate = (payload: any, err?: Error) => {
         // dev warning if we are already sealed
         if (process.env.NODE_ENV !== 'production' && _sealed)
-          console.error(
-            `redux-persist: rehydrate for "${
-              config.key
-            }" called after timeout.`,
-            payload,
-            err
-          )
+          console.error(`redux-persist: rehydrate for "${config.key}" called after timeout.`, payload, err)
 
         // only rehydrate if we are not already sealed
         if (!_sealed) {
@@ -88,14 +77,7 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
       if (timeout)
         setTimeout(() => {
           if (!_sealed)
-            _rehydrate(
-              undefined,
-              new Error(
-                `redux-persist: persist timed out for persist key "${
-                  config.key
-                }"`
-              )
-            )
+            _rehydrate(undefined, new Error(`redux-persist: persist timed out for persist key "${config.key}"`))
         }, timeout)
 
       // @NOTE PERSIST resumes if paused.
@@ -111,13 +93,10 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
         return {
           ...baseReducer(restState, action),
           _persist,
-        };
+        }
       }
 
-      if (
-        typeof action.rehydrate !== 'function' ||
-        typeof action.register !== 'function'
-      )
+      if (typeof action.rehydrate !== 'function' || typeof action.register !== 'function')
         throw new Error(
           'redux-persist: either rehydrate or register is not a function on the PERSIST action. This can happen if the action is being replayed. This is an unexplored use case, please open an issue and we will figure out a resolution.'
         )
@@ -125,14 +104,14 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
       action.register(config.key)
 
       getStoredState(config).then(
-        restoredState => {
+        (restoredState) => {
           if (restoredState) {
             const migrate = config.migrate || ((s) => Promise.resolve(s))
             migrate(restoredState as any, version).then(
-              migratedState => {
+              (migratedState) => {
                 _rehydrate(migratedState)
               },
-              migrateErr => {
+              (migrateErr) => {
                 if (process.env.NODE_ENV !== 'production' && migrateErr)
                   console.error('redux-persist: migration error', migrateErr)
                 _rehydrate(undefined, migrateErr)
@@ -142,7 +121,7 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
             _rehydrate(undefined)
           }
         },
-        err => {
+        (err) => {
           _rehydrate(undefined, err)
         }
       )
@@ -194,6 +173,13 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
 
     // if we have not already handled PERSIST, straight passthrough
     if (!_persist) return baseReducer(state, action)
+
+    if (process.env.NODE_ENV !== 'production' && !_persist.rehydrated) {
+      console.warn(
+        `redux-persist: action "${action.type}" was dispatched for key "${config.key}" before rehydration completed. ` +
+          'This state change may be overwritten once rehydration finishes.'
+      )
+    }
 
     // run base reducer:
     // is state modified ? return original : return updated

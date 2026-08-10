@@ -1,21 +1,15 @@
 import test from 'ava'
 import sinon from 'sinon'
 
-import _configureStore, { MockStoreCreator, MockStoreEnhanced } from 'redux-mock-store' // @TODO: Redux Mock Store is deprecated. Should update soon.
-// Node.js ESM doesn't unwrap __esModule:true from CJS packages; access .default explicitly
-const configureStore = (_configureStore as any).default as typeof _configureStore
+import { createTestStore } from './utils/createTestStore'
 
 import persistStore from '../src/persistStore'
 import { PERSIST, REHYDRATE } from '../src/constants'
 import find from './utils/find'
-import { Middleware } from 'redux'
 import { Persistor } from '../src/types'
 
-const middleware: Middleware[] = []
-const mockStore: MockStoreCreator<unknown, object> = configureStore(middleware)
-
-test('persistStore returns a Persistor object', t => {
-  const store: MockStoreEnhanced<unknown, object> = mockStore()
+test('persistStore returns a Persistor object', (t) => {
+  const store = createTestStore()
   const persistor: Persistor = persistStore(store)
   t.is('object', typeof persistor)
   t.is('function', typeof persistor.pause)
@@ -27,8 +21,8 @@ test('persistStore returns a Persistor object', t => {
   t.is('function', typeof persistor.subscribe)
 })
 
-test('persistStore dispatches PERSIST action', t => {
-  const store: MockStoreEnhanced<unknown, object> = mockStore()
+test('persistStore dispatches PERSIST action', (t) => {
+  const store = createTestStore()
   persistStore(store)
   const actions = store.getActions()
   const persistAction = find(actions, { type: PERSIST })
@@ -36,8 +30,8 @@ test('persistStore dispatches PERSIST action', t => {
   t.is('persist/PERSIST', persistAction!.type)
 })
 
-test('register method adds a key to the registry', t => {
-  const store = mockStore()
+test('register method adds a key to the registry', (t) => {
+  const store = createTestStore()
   const persistor = persistStore(store)
   const actions = store.getActions()
   const persistAction = find(actions, { type: PERSIST })
@@ -46,8 +40,8 @@ test('register method adds a key to the registry', t => {
   t.deepEqual(persistor.getState().registry, ['canary'])
 })
 
-test('rehydrate method fires with the expected shape', t => {
-  const store = mockStore()
+test('rehydrate method fires with the expected shape', (t) => {
+  const store = createTestStore()
   persistStore(store)
   const actions = store.getActions()
   const persistAction = find(actions, { type: PERSIST })
@@ -57,8 +51,8 @@ test('rehydrate method fires with the expected shape', t => {
   t.deepEqual(rehydrateAction, { type: REHYDRATE, key: 'canary', payload: { foo: 'bar' }, err: null })
 })
 
-test('rehydrate method removes provided key from registry', t => {
-  const store = mockStore()
+test('rehydrate method removes provided key from registry', (t) => {
+  const store = createTestStore()
   const persistor = persistStore(store)
   const actions = store.getActions()
   const persistAction = find(actions, { type: PERSIST })
@@ -73,8 +67,8 @@ test('rehydrate method removes provided key from registry', t => {
   t.deepEqual(persistor.getState().registry, [])
 })
 
-test('rehydrate method removes exactly one of provided key from registry', t => {
-  const store = mockStore()
+test('rehydrate method removes exactly one of provided key from registry', (t) => {
+  const store = createTestStore()
   const persistor = persistStore(store)
   const actions = store.getActions()
   const persistAction = find(actions, { type: PERSIST })
@@ -90,8 +84,8 @@ test('rehydrate method removes exactly one of provided key from registry', t => 
   t.deepEqual(persistor.getState().registry, ['canary'])
 })
 
-test('once registry is cleared for first time, persistor is flagged as bootstrapped', t => {
-  const store = mockStore()
+test('once registry is cleared for first time, persistor is flagged as bootstrapped', (t) => {
+  const store = createTestStore()
   const persistor = persistStore(store)
   const actions = store.getActions()
   const persistAction = find(actions, { type: PERSIST })
@@ -103,8 +97,8 @@ test('once registry is cleared for first time, persistor is flagged as bootstrap
   t.true(persistor.getState().bootstrapped)
 })
 
-test('once persistor is flagged as bootstrapped, further registry changes do not affect this value', t => {
-  const store = mockStore()
+test('once persistor is flagged as bootstrapped, further registry changes do not affect this value', (t) => {
+  const store = createTestStore()
   const persistor = persistStore(store)
   const actions = store.getActions()
   const persistAction = find(actions, { type: PERSIST })
@@ -121,8 +115,8 @@ test('once persistor is flagged as bootstrapped, further registry changes do not
   t.true(persistor.getState().bootstrapped)
 })
 
-test('persistStore calls bootstrapped callback (at most once) if provided', t => {
-  const store = mockStore()
+test('persistStore calls bootstrapped callback (at most once) if provided', (t) => {
+  const store = createTestStore()
   const bootstrappedCb = sinon.spy()
   persistStore(store, {}, bootstrappedCb)
   const actions = store.getActions()

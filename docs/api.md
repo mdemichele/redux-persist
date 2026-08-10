@@ -106,6 +106,12 @@ createPersistoid(
 ```
 Where Persistoid is [defined below](#type-persistoid).
 
+A **persistoid** is the write engine for a single persisted reducer key. It holds a throttled queue of changed state keys and writes them to storage in batches, rather than on every Redux state update. Internally, `persistReducer` creates and manages a persistoid automatically — you only need to call `createPersistoid` directly if you are wiring up persistence without `persistReducer` (for example, via a store subscriber as shown in [v5-migration-alternate.md](./v5-migration-alternate.md)).
+
+`update(state)` should be called with the current Redux state whenever it changes. The persistoid diffs the new state against the previous state, enqueues any changed keys, runs them through any configured transforms, serializes the result, and writes the entire staged state to storage once the queue is drained.
+
+`flush()` drains the queue synchronously, bypassing the throttle, and returns a promise that resolves when the pending storage write completes. Call it when you need a guaranteed write before navigating away or closing the app.
+
 ### `type Persistoid`
 ```js
 {

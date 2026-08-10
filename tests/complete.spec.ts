@@ -15,7 +15,7 @@ const config = {
   timeout: 5,
 }
 
-test('multiple persistReducers work together', t => {
+test('multiple persistReducers work together', (t) => {
   return new Promise((resolve) => {
     const r1 = persistReducer(config, reducer)
     const r2 = persistReducer(config, reducer)
@@ -23,19 +23,19 @@ test('multiple persistReducers work together', t => {
     const store = createStore(rootReducer)
     const persistor = persistStore(store, {}, () => {
       t.is(persistor.getState().bootstrapped, true)
-      resolve()      
+      resolve()
     })
   })
 })
 
-test('persistStore timeout 0 never bootstraps', t => {
+test('persistStore timeout 0 never bootstraps', (t) => {
   return new Promise((resolve, reject) => {
-    const r1 = persistReducer({...config, storage: brokenStorage, timeout: 0}, reducer)
+    const r1 = persistReducer({ ...config, storage: brokenStorage, timeout: 0 }, reducer)
     const rootReducer = combineReducers({ r1 })
     const store = createStore(rootReducer)
     const persistor = persistStore(store, undefined, () => {
       console.log('resolve')
-      reject()     
+      reject()
     })
     setTimeout(() => {
       t.is(persistor.getState().bootstrapped, false)
@@ -44,10 +44,9 @@ test('persistStore timeout 0 never bootstraps', t => {
   })
 })
 
-
-test('persistStore timeout forces bootstrap', t => {
+test('persistStore timeout forces bootstrap', (t) => {
   return new Promise((resolve, reject) => {
-    const r1 = persistReducer({...config, storage: brokenStorage}, reducer)
+    const r1 = persistReducer({ ...config, storage: brokenStorage }, reducer)
     const rootReducer = combineReducers({ r1 })
     const store = createStore(rootReducer)
     const persistor = persistStore(store, undefined, () => {
