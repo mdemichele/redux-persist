@@ -11,7 +11,8 @@ type Props = {
 export function PersistGate({ persistor, onBeforeLift, children, loading = null }: Props) {
   const bootstrapped = useSyncExternalStore(
     persistor.subscribe,
-    () => persistor.getState().bootstrapped
+    () => persistor.getState().bootstrapped,
+    () => false
   )
 
   // If already bootstrapped on mount with no onBeforeLift, skip the loading flash
