@@ -1,18 +1,4 @@
-export interface FilesystemStorageOptions {
-  storagePath: string
-  encoding: string
-  toFileName: (name: string) => string
-  fromFileName: (name: string) => string
-}
-
-export interface FilesystemStorage {
-  config: (customOptions: Partial<FilesystemStorageOptions>) => void
-  setItem: (key: string, value: string, callback?: (error?: Error | null) => void) => Promise<void>
-  getItem: (key: string, callback?: (error?: Error | null, result?: string | null) => void) => Promise<string | null | undefined>
-  removeItem: (key: string, callback?: (error?: Error | null) => void) => Promise<undefined>
-  getAllKeys: (callback?: (error?: Error | null, keys?: Array<string>) => any) => Promise<string[] | undefined>
-  clear: (callback?: (error?: Error | null, allKeysCleared?: boolean) => void) => Promise<boolean>
-}
+import type { FilesystemStorageOptions, FilesystemStorage } from '../types'
 
 export default function createFilesystemStorage(ReactNativeBlobUtil: any): FilesystemStorage {
   const createStoragePathIfNeeded = (path: string): Promise<any> =>
@@ -136,34 +122,25 @@ export default function createFilesystemStorage(ReactNativeBlobUtil: any): Files
         }),
 
     clear: (callback?: (error?: Error | null, allKeysCleared?: boolean) => void) =>
-      storage.getAllKeys((error, keys) => {
-        if (error) throw error
-
-        if (Array.isArray(keys) && keys.length) {
-          const removedKeys: string[] = []
-
-          keys.forEach((key) => {
-            storage.removeItem(key, (error?: Error | null) => {
-              removedKeys.push(key)
-              if (error && callback) {
-                callback(error, false)
-              }
-              if (removedKeys.length === keys.length && callback) {
-                callback(null, true)
-              }
+      storage
+        .getAllKeys()
+        .then((keys) => {
+          if (Array.isArray(keys) && keys.length) {
+            return Promise.all(keys.map((key) => storage.removeItem(key))).then(() => {
+              callback?.(null, true)
+              return true
             })
-          })
-          return true
-        }
-
-        callback?.(null, false)
-        return false
-      }).catch((error: Error) => {
-        if (!callback) {
-          throw error
-        }
-        callback(error)
-      }),
+          }
+          callback?.(null, false)
+          return false
+        })
+        .catch((error: Error) => {
+          if (!callback) {
+            throw error
+          }
+          callback(error)
+          return false
+        })
   }
 
   return storage

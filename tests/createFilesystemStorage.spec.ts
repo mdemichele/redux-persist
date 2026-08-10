@@ -127,6 +127,17 @@ test('clear removes all stored keys', async t => {
   t.deepEqual(keys, [])
 })
 
+test('clear returns true when all stored keys are successfully removed.', async t => {
+  const blob = createMockBlobUtil()
+  const storage = createFilesystemStorage(blob)
+  await storage.setItem('x', '1')
+  await storage.setItem('y', '2')
+  const returnValue = await storage.clear()
+  const keys = await storage.getAllKeys()
+  t.deepEqual(keys, [])
+  t.deepEqual(returnValue, true);
+})
+
 test('toFileName and fromFileName transforms are applied to keys', async t => {
   const blob = createMockBlobUtil()
   const storage = createFilesystemStorage(blob)
