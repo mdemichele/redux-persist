@@ -11,11 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **React 18 or higher is now required** when using `PersistGate`. React is listed as an optional peer dependency (via `peerDependenciesMeta`), so users who do not use `PersistGate` will not receive a peer dependency warning.
 - `PersistGate` is now a **named function export** rather than a named class export. Code that uses `instanceof PersistGate` or references `PersistGate.defaultProps` will need to be updated, though typical JSX usage is unchanged.
 
+### Added
+- `persistor.pull()` — re-reads storage and replaces the persisted slices of Redux state with what is found there, returning a promise. Useful after returning from bfcache or as a safety net on top of a real cross-tab sync channel. Note: any in-memory state that has not yet been flushed will be overwritten. ([#62](https://github.com/mdemichele/redux-persist/pull/62))
+- `createFilesystemStorage(rnBlobUtil)` — new storage adapter for React Native that writes persisted state to the device filesystem via `react-native-blob-util`. Ports the functionality of the unmaintained `redux-persist-filesystem-storage` community package directly into the library. The factory accepts a `ReactNativeBlobUtil` instance so the dependency remains optional and environment-agnostic. ([#65](https://github.com/mdemichele/redux-persist/pull/65))
+
 ### Changed
-- `PersistGate` rewritten as a functional component using `useSyncExternalStore` (React 18+). This eliminates the tearing risk present in the old class-based implementation under React 18's concurrent renderer: the previous approach read from the persistor inside a class render, which could produce inconsistent snapshots across concurrent renders.
-- `loading` prop is now optional (default: `null`). Previously the prop was listed as required in types, though it had a runtime default.
+- `PersistGate` rewritten as a functional component using `useSyncExternalStore` (React 18+). This eliminates the tearing risk present in the old class-based implementation under React 18's concurrent renderer: the previous approach read from the persistor inside a class render, which could produce inconsistent snapshots across concurrent renders. ([#31](https://github.com/mdemichele/redux-persist/pull/31))
+- `loading` prop on `PersistGate` is now optional (default: `null`). Previously the prop was listed as required in types, though it had a runtime default.
+- `persistReducer` now threads the Redux v5 `PreloadedState` type parameter through its signature, preserving type accuracy for apps that pass a preloaded state to `createStore`. A local structural type is used internally for backward compatibility with Redux v4. ([#59](https://github.com/mdemichele/redux-persist/pull/59))
 
 ### Fixed
+- `getStoredState` now infers `deserialize: false` when `serialize: false` is set without an explicit `deserialize` option. Previously it always defaulted to `JSON.parse` in this case, causing a `SyntaxError` on rehydration because the stored value was already a plain object rather than a JSON string. ([#63](https://github.com/mdemichele/redux-persist/pull/63))
 - `PersistGate` is now safe for **SSR and NextJS**: `useSyncExternalStore`'s server snapshot always returns `false`, so the server render always produces the loading state rather than attempting to access storage.
 - `onBeforeLift` is now invoked via `Promise.resolve(onBeforeLift())` so that async callbacks correctly delay the gate from lifting until the returned promise settles.
 
