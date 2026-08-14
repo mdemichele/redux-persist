@@ -30,14 +30,14 @@ const reducer = (state = initialState, { type }: { type: any }) => {
 const memoryStorage = createMemoryStorage()
 
 const config = {
-  key: 'resync-reducer-test',
+  key: 'pull-reducer-test',
   version: 1,
   storage: memoryStorage,
   debug: true,
   throttle: 1000,
 }
 
-test('state is resynced from storage', t => {
+test('state is replaced from storage after pull()', t => {
   return new Promise((resolve) => {
     const rootReducer = persistReducer(config, reducer)
     const store = createStore(rootReducer)
@@ -61,8 +61,8 @@ test('state is resynced from storage', t => {
       await memoryStorage.setItem(`persist:${config.key}`, JSON.stringify(newStorageValue))
       const storagePostModify = await getStoredState(config)
 
-      // 3) Call resync and verify redux-persist state was overridden by storage
-      await persistor.resync()
+      // 3) Call pull() and verify redux-persist state was replaced by storage value
+      await persistor.pull()
       t.deepEqual(storagePostModify, {
         a: 1,
         _persist: persistObj,

@@ -1,7 +1,7 @@
 import type { Persistor, PersistorOptions, PersistorState, RehydrateAction } from './types'
 
 import { AnyAction, createStore, Store } from 'redux'
-import { FLUSH, PAUSE, PERSIST, RESYNC, PURGE, REGISTER, REHYDRATE } from './constants'
+import { FLUSH, PAUSE, PERSIST, PULL, PURGE, REGISTER, REHYDRATE } from './constants'
 
 type BoostrappedCb = () => any
 
@@ -97,10 +97,10 @@ export default function persistStore(store: Store, options?: PersistorOptions, c
     persist: () => {
       store.dispatch({ type: PERSIST, register, rehydrate })
     },
-    resync: () => {
+    pull: () => {
       return new Promise<void>(resolve => {
         store.dispatch({
-          type: RESYNC,
+          type: PULL,
           rehydrate,
           result: () => resolve(),
         })

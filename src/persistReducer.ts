@@ -1,6 +1,6 @@
 import { Action } from 'redux'
 
-import { FLUSH, PAUSE, PERSIST, PURGE, REHYDRATE, RESYNC, DEFAULT_VERSION } from './constants'
+import { FLUSH, PAUSE, PERSIST, PURGE, REHYDRATE, PULL, DEFAULT_VERSION } from './constants'
 
 import type { PersistConfig, PersistState, Persistoid, KeyAccessState } from './types'
 
@@ -137,7 +137,7 @@ export default function persistReducer<S extends KeyAccessState, A extends Actio
         ...baseReducer(restState, action),
         _persist,
       }
-    } else if (action.type === RESYNC) {
+    } else if (action.type === PULL) {
       getStoredState(config)
         .then(
           restoredState =>

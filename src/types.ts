@@ -141,7 +141,7 @@ export type PersistorSubscribeCallback = () => any
 export interface Persistor {
   pause(): void
   persist(): void
-  resync(): Promise<void>
+  pull(): Promise<void>
   purge(): Promise<any>
   flush(): Promise<any>
   dispatch(action: PersistorAction): PersistorAction
