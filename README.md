@@ -417,7 +417,9 @@ Multiple transforms can be provided — they are applied in array order on the w
 
 ## Storage Engines
 
-redux-persist ships with two built-in storage engines for web:
+redux-persist ships with built-in storage engines for web and React Native:
+
+**Web:**
 
 ```js
 import storage from ‘@mdemichele/redux-persist/storage’         // localStorage (default for web)
@@ -425,6 +427,28 @@ import storageSession from ‘@mdemichele/redux-persist/storage/session’ // se
 ```
 
 `sessionStorage` behaves like `localStorage` but is cleared when the browser tab is closed — useful for session-scoped state that should not survive past the current session.
+
+**React Native — filesystem storage:**
+
+```js
+import { createFilesystemStorage } from ‘@mdemichele/redux-persist/storage’
+import ReactNativeBlobUtil from ‘react-native-blob-util’
+
+const storage = createFilesystemStorage(ReactNativeBlobUtil)
+```
+
+`createFilesystemStorage` writes each persisted key as a separate file on the device filesystem via [`react-native-blob-util`](https://github.com/RonRadtke/react-native-blob-util). This avoids the size limits and serialization overhead of `AsyncStorage`, making it well-suited for apps that persist large state trees. The factory accepts a `ReactNativeBlobUtil` instance directly so the dependency stays optional — install it separately in your React Native project.
+
+Optional configuration can be passed as a second argument:
+
+```js
+const storage = createFilesystemStorage(ReactNativeBlobUtil, {
+  storagePath: `${ReactNativeBlobUtil.fs.dirs.DocumentDir}/myAppStore`,
+  encoding: ‘utf8’,
+  toFileName: (name) => name.replace(/:/g, ‘-’),
+  fromFileName: (name) => name.replace(/-/g, ‘:’),
+})
+```
 
 **Writing a custom storage engine:**
 
@@ -446,7 +470,7 @@ const customStorage = {
 | [react-native-mmkv](https://github.com/mrousavy/react-native-mmkv) | React Native | High-performance key-value storage — requires a [thin custom adapter](https://github.com/mrousavy/react-native-mmkv#redux-persist) | Active |
 | [redux-persist-expo-filesystem](https://github.com/t73liu/redux-persist-expo-filesystem) | React Native (Expo) | Filesystem storage — no linking or ejecting required | Active |
 | [redux-persist-expo-securestore](https://github.com/Cretezy/redux-persist-expo-securestore) | React Native (Expo) | Expo SecureStore for sensitive data | Active |
-| [redux-persist-filesystem-storage](https://github.com/robwalkerco/redux-persist-filesystem-storage) | React Native (Android) | Mitigates Android storage size limitations | Active |
+| [redux-persist-filesystem-storage](https://github.com/robwalkerco/redux-persist-filesystem-storage) | React Native (Android) | Mitigates Android storage size limitations — superseded by the built-in `createFilesystemStorage` | Unmaintained |
 | [redux-persist-webextension-storage](https://github.com/ssorallen/redux-persist-webextension-storage) | Chrome / Firefox | Browser extension storage API | Unmaintained |
 | [redux-persist-cookie-storage](https://github.com/abersager/redux-persist-cookie-storage) | Web / Node.js | Cookie-based storage, works universally | Unmaintained |
 | [redux-persist-indexeddb-storage](https://github.com/machester4/redux-persist-indexeddb-storage) | Web | IndexedDB via localForage — recommended for large state | Unmaintained |
