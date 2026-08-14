@@ -141,9 +141,26 @@ export type PersistorSubscribeCallback = () => any
 export interface Persistor {
   pause(): void
   persist(): void
+  pull(): Promise<void>
   purge(): Promise<any>
   flush(): Promise<any>
   dispatch(action: PersistorAction): PersistorAction
   getState(): PersistorState
   subscribe(callback: PersistorSubscribeCallback): () => any
+}
+
+export interface FilesystemStorageOptions {
+  storagePath: string
+  encoding: string
+  toFileName: (name: string) => string
+  fromFileName: (name: string) => string
+}
+
+export interface FilesystemStorage {
+  config: (customOptions: Partial<FilesystemStorageOptions>) => void
+  setItem: (key: string, value: string, callback?: (error?: Error | null) => void) => Promise<void>
+  getItem: (key: string, callback?: (error?: Error | null, result?: string | null) => void) => Promise<string | null | undefined>
+  removeItem: (key: string, callback?: (error?: Error | null) => void) => Promise<undefined>
+  getAllKeys: (callback?: (error?: Error | null, keys?: Array<string>) => any) => Promise<string[] | undefined>
+  clear: (callback?: (error?: Error | null, allKeysCleared?: boolean) => void) => Promise<boolean>
 }
