@@ -11,10 +11,11 @@ Beyond basic persistence, the library also handles state shape migrations as you
 
 For a deeper look at the problem this project solves and why it was built, see [docs/project-purpose.md](./docs/project-purpose.md).
 
-> **Note on versioning:** The initial `v0.0.1` npm release was a proof-of-concept publish to establish the `@mdemichele/redux-persist` package name. The first real release was `v6.1.0`, aligning with the actual version of the codebase (the TypeScript fork) and providing a meaningful starting point for future semantic versioning.
+> **Note on versioning:** The initial `v0.0.1` npm release was a proof-of-concept publish to establish the `@mdemichele/redux-persist` package name. The first real release was `v6.1.0`, aligning with the actual version of the codebase (the TypeScript fork) and providing a meaningful starting point for future semantic versioning. `v7.0.0` is the first major breaking release: it requires React 18+ for `PersistGate` and rewrites it as a functional component using `useSyncExternalStore`.
 
 ## Project Timeline
 
+- August 13, 2026: v7.0.0 released — `PersistGate` rewritten with `useSyncExternalStore` for React 18 concurrent mode. React 18+ is now a required peer dependency for `PersistGate`.
 - June 9, 2026: v0.0.1 released to npm as `@mdemichele/redux-persist`. Following a regular release cadence from here on.
 - February 16, 2025: New Fork Created. I'm hoping we can revive this project and get it actively maintained again.
 - October 15th, 2021: Move to TypeScript (Thanks [@smellman](https://github.com/smellman))
@@ -79,6 +80,8 @@ export default () => {
 
 **React: wrapping your app with `PersistGate`**
 
+> **Requires React 18 or higher.** `PersistGate` uses `useSyncExternalStore`, which is a React 18 API. This makes it safe under React 18's concurrent renderer — earlier versions of the component used a class-based approach that could cause tearing.
+
 Because rehydration is asynchronous, your app may briefly render with default state before persisted data arrives. Wrap your root component with `PersistGate` to hold rendering until rehydration is complete.
 
 ```js
@@ -98,8 +101,9 @@ const App = () => {
 };
 ```
 
-- The `loading` prop is rendered while rehydration is in progress. Pass `null` to render nothing, or a loading component such as `loading={<LoadingScreen />}`.
+- The `loading` prop is optional (defaults to `null`). Pass a loading component such as `loading={<LoadingScreen />}` to render something while rehydration is in progress.
 - `PersistGate` also accepts a function as children: the function receives a single `bootstrapped` boolean argument and is re-invoked once persistence is complete, which is useful for adding transition animations.
+- **SSR / Next.js:** `PersistGate` is safe to render server-side. The server snapshot always returns `false`, so the server render always produces the `loading` state and never attempts to access storage.
 
 ## API
 

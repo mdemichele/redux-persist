@@ -5,6 +5,20 @@ The format is (mostly) based on [Keep a Changelog](https://keepachangelog.com/en
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.0.0] - 2026-08-13
+
+### Breaking Changes
+- **React 18 or higher is now required** when using `PersistGate`. React is listed as an optional peer dependency (via `peerDependenciesMeta`), so users who do not use `PersistGate` will not receive a peer dependency warning.
+- `PersistGate` is now a **named function export** rather than a named class export. Code that uses `instanceof PersistGate` or references `PersistGate.defaultProps` will need to be updated, though typical JSX usage is unchanged.
+
+### Changed
+- `PersistGate` rewritten as a functional component using `useSyncExternalStore` (React 18+). This eliminates the tearing risk present in the old class-based implementation under React 18's concurrent renderer: the previous approach read from the persistor inside a class render, which could produce inconsistent snapshots across concurrent renders.
+- `loading` prop is now optional (default: `null`). Previously the prop was listed as required in types, though it had a runtime default.
+
+### Fixed
+- `PersistGate` is now safe for **SSR and NextJS**: `useSyncExternalStore`'s server snapshot always returns `false`, so the server render always produces the loading state rather than attempting to access storage.
+- `onBeforeLift` is now invoked via `Promise.resolve(onBeforeLift())` so that async callbacks correctly delay the gate from lifting until the returned promise settles.
+
 ## [6.1.3] - 2026-07-21
 
 ### Fixed
